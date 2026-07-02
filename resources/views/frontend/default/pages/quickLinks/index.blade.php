@@ -1,8 +1,10 @@
 @extends('frontend.default.layouts.master')
 
-@section('title')
-    {{ localize('Quick Links') }} {{ getSetting('title_separator') }} {{ getSetting('system_title') }}
-@endsection
+@section('title', $page->meta_title ?? $page->title)
+
+@section('meta_description', $page->meta_description ?? '')
+
+@section('meta_keywords', $page->meta_keywords ?? '')
 
 @section('breadcrumb-contents')
     <div class="breadcrumb-content">
@@ -10,7 +12,7 @@
         <nav>
             <ol class="breadcrumb justify-content-center">
                 <li class="breadcrumb-item fw-bold" aria-current="page"><a
-                        href="{{ route('home') }}">{{ localize('Home') }}</a></li>
+                        href="{{ route('home') }}">{{ localize('Home') }}</a></li>  
                 <li class="breadcrumb-item fw-bold" aria-current="page">{{ localize('Quick Links') }}</li>
             </ol>
         </nav>

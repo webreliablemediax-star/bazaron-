@@ -158,10 +158,13 @@ class HomeController extends Controller
     }
 
     # contact us
-    public function contactUs()
-    {
-        return getView('pages.quickLinks.contactUs');
-    }
+   # contact us
+public function contactUs()
+{
+    $page = Page::where('slug', 'contact-us')->first();
+
+    return getView('pages.quickLinks.contactUs', compact('page'));
+}
 
     # dynamic page
     public function showPage($slug)

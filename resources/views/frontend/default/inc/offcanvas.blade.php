@@ -6,7 +6,9 @@
         <div class="offcanvas-content">
             <h4 class="mb-4">{{ 'About Us' }}</h4>
             <p>{{ getSetting('about_us') }}</p>
-            <a href="{{ route('home.pages.aboutUs') }}" class="btn btn-primary mt-4">{{ 'About Us' }}</a>
+           <a href="{{ route('home.pages.show', 'about-us') }}" class="btn btn-primary mt-4">
+    {{ 'About Us' }}
+</a>
         </div>
     </div>
 
@@ -55,7 +57,11 @@
                             @endphp
 
                             <li><a href="{{ route('home.blogs') }}">{{ localize('Blogs') }}</a></li>
-                            <li><a href="{{ route('home.pages.aboutUs') }}">{{ localize('About Us') }}</a></li>
+                          <li>
+    <a href="{{ route('home.pages.show', 'about-us') }}">
+        {{ localize('About Us') }}
+    </a>
+</li>
                             <li><a href="{{ route('home.pages.contactUs') }}">{{ localize('Contact Us') }}</a></li>
                             @foreach ($pages as $navbarPage)
                                 <li><a

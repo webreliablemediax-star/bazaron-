@@ -1,7 +1,15 @@
 @extends('frontend.default.layouts.master')
 
 @section('title')
-    {{ localize('Conatct Us') }} {{ getSetting('title_separator') }} {{ getSetting('system_title') }}
+    {{ $page->meta_title ?? localize('Contact Us') }}
+@endsection
+
+@section('meta_description')
+    {{ $page->meta_description ?? '' }}
+@endsection
+
+@section('meta_keywords')
+    {{ $page->meta_keywords ?? '' }}
 @endsection
 
 @section('breadcrumb-contents')

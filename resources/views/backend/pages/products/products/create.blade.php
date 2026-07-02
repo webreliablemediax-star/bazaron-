@@ -674,7 +674,7 @@
                         <!-- ================= bazaron PRODUCT ATTRIBUTES (bazaron FULL FIXED) ================= -->
                         <div class="card mb-4" id="section-bazaron-attributes">
                             <div class="card-body">
-                                <h5 class="mb-4">Bazaron Attributes</h5>
+                                <h5 class="mb-4">Attributes</h5>
                                 <div class="row g-3">
                                     <!-- Model Number -->
                                     <div class="col-lg-6">

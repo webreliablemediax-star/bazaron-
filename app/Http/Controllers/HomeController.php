@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\Page;
 use App\Models\Slider;
 use App\Models\Category;
 
@@ -28,4 +29,11 @@ class HomeController extends Controller
             compact('sliders', 'topCategories')
         );
     }
+    # dynamic page
+public function showPage($slug)
+{
+    $page = Page::where('slug', $slug)->firstOrFail();
+
+    return getView('pages.quickLinks.index', compact('page'));
+}
 }

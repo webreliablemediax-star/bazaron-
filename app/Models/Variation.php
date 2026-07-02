@@ -8,6 +8,10 @@ use App;
 class Variation extends Model
 {
 use HasFactory, SoftDeletes;
+protected $fillable = [
+    'name',
+    'is_active',
+];
 protected $with = ['variation_localizations'];
 public function scopeIsActive($query)
 {

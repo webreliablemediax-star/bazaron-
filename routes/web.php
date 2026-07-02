@@ -6,6 +6,8 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Frontend\CheckoutController;
 use App\Http\Controllers\Frontend\CustomerController;
 use App\Http\Controllers\Frontend\SubscribersController;
+use App\Http\Controllers\Vendor\VariationRequestController;
+use App\Http\Controllers\Backend\vendor\AdminVariationController;
 use App\Http\Controllers\Frontend\HomeController;
 use App\Http\Controllers\Frontend\ProductController;
 use App\Http\Controllers\Auth\LoginController;
@@ -83,6 +85,10 @@ Route::prefix('vendor')
         '/purchase-quantity-request',
         [AdminProductController::class, 'purchaseQuantityRequest']
     )->name('purchase-quantity.request');
+    Route::post(
+    '/variation-request',
+    [VariationRequestController::class, 'store']
+)->name('variation.request.store');
 
     Route::get('/invoice-config', [VendorDashboardController::class, 'invoiceConfig'])
         ->name('invoice.config');
@@ -231,6 +237,25 @@ Route::post(
     [AdminVendorController::class, 'rejectPurchaseQuantityRequest']
 )->name('purchase.quantity.request.reject');
 Route::get(
+    '/variation-requests',
+    [AdminVariationController::class, 'index']
+)->name('variation.requests');
+
+Route::get(
+    '/variation-request/{id}',
+    [AdminVariationController::class, 'show']
+)->name('variation.request.show');
+
+Route::post(
+    '/variation-request/{id}/approve',
+    [AdminVariationController::class, 'approve']
+)->name('variation.request.approve');
+
+Route::post(
+    '/variation-request/{id}/reject',
+    [AdminVariationController::class, 'reject']
+)->name('variation.request.reject');
+Route::get(
     '/delivery-settings',
     [AdminVendorController::class, 'deliverySettings']
 )->name('delivery.settings');
@@ -317,7 +342,7 @@ Route::get('/campaigns/{slug}', [HomeController::class, 'showCampaign'])->name('
 # coupons
 Route::get('/coupons', [HomeController::class, 'allCoupons'])->name('home.coupons');
 # pages
-Route::get('/about-us', [HomeController::class, 'aboutUs'])->name('home.pages.aboutUs');
+// Route::get('/about-us', [HomeController::class, 'aboutUs'])->name('home.pages.aboutUs');
 Route::get('/contact-us', [HomeController::class, 'contactUs'])->name('home.pages.contactUs');
 Route::get('/{slug}', [HomeController::class, 'showPage'])->name('home.pages.show');
 # contact us message

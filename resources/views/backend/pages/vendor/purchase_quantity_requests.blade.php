@@ -19,7 +19,7 @@
 
                 <thead>
                     <tr>
-                        <th>Product ID</th>
+                        <th>Product Code</th>
                         <th>Seller</th>
                         <th>Product</th>
                         <th>Old Qty</th>
@@ -34,7 +34,7 @@
                     @forelse($requests as $key => $request)
 
                         <tr>
-                           <td>{{ $request->product_id }}</td>
+                           <td>{{ $request->product->product_code ?? '-' }}</td>
                             <td>{{ $request->seller->name ?? '-' }}</td>
                             <td>{{ $request->product->name ?? '-' }}</td>
                             <td>{{ $request->old_quantity }}</td>

@@ -9,7 +9,13 @@ use App;
 class VariationValue extends Model
 {
     use HasFactory;
-    
+
+    protected $fillable = [
+        'variation_id',
+        'name',
+        'is_active',
+    ];
+
     protected $with = ['variation_value_localizations'];
 
     public function scopeIsActive($query)

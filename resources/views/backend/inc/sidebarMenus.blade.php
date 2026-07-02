@@ -125,16 +125,6 @@
         </li>
     @endcan
 
-    <!-- pos -->
-    {{-- @canany(['pos'])
-        <li class="side-nav-item nav-item">
-            <a href="{{ route('admin.pos.index') }}" class="side-nav-link">
-                <span class="tt-nav-link-icon"><i data-feather="table"></i></span>
-                <span class="tt-nav-link-text">{{ localize('Pos System') }}</span>
-            </a>
-        </li>
-    @endcan --}}
-
     <!-- orders -->
     @can('orders')
         <li
@@ -197,94 +187,6 @@
             </div>
         </li>
     @endcan
-
-
-    <!-- Refunds -->
-    {{-- @php
-        $refundsActiveRoutes = ['admin.refund.configurations', 'admin.refund.requests', 'admin.refund.refunded', 'admin.refund.rejected'];
-    @endphp
-
-    @canany(['refund_configurations', 'refund_requests', 'approved_refunds', 'rejected_refunds'])
-        <li class="side-nav-item nav-item {{ areActiveRoutes($refundsActiveRoutes, 'tt-menu-item-active') }}">
-            <a data-bs-toggle="collapse" href="#manageRefunds"
-                aria-expanded="{{ areActiveRoutes($refundsActiveRoutes, 'true') }}" aria-controls="manageRefunds"
-                class="side-nav-link tt-menu-toggle">
-                <span class="tt-nav-link-icon"><i data-feather="corner-up-left"></i></span>
-                <span class="tt-nav-link-text">{{ localize('Refunds') }}</span>
-            </a>
-            <div class="collapse {{ areActiveRoutes($refundsActiveRoutes, 'show') }}" id="manageRefunds">
-                <ul class="side-nav-second-level">
-
-                    @can('refund_configurations')
-                        <li class="{{ areActiveRoutes(['admin.refund.configurations'], 'tt-menu-item-active') }}">
-                            <a href="{{ route('admin.refund.configurations') }}"
-                                class="{{ areActiveRoutes(['admin.refund.configurations']) }}">{{ localize('Refund Configurations') }}</a>
-                        </li>
-                    @endcan
-
-                    @can('refund_requests')
-                        <li class="{{ areActiveRoutes(['admin.refund.requests'], 'tt-menu-item-active') }}">
-                            <a href="{{ route('admin.refund.requests') }}">{{ localize('Refund Requests') }}</a>
-                        </li>
-                    @endcan
-
-                    @can('approved_refunds')
-                        <li class="{{ areActiveRoutes(['admin.refund.refunded'], 'tt-menu-item-active') }}">
-                            <a href="{{ route('admin.refund.refunded') }}">{{ localize('Approved Refunds') }}</a>
-                        </li>
-                    @endcan
-
-                    @can('rejected_refunds')
-                        <li class="{{ areActiveRoutes(['admin.refund.rejected'], 'tt-menu-item-active') }}">
-                            <a href="{{ route('admin.refund.rejected') }}">{{ localize('Rejected Refunds') }}</a>
-                        </li>
-                    @endcan
-
-                </ul>
-            </div>
-        </li>
-    @endcan --}}
-
-
-    <!-- Rewards & Wallet -->
-    {{-- @php
-        $rewardsActiveRoutes = ['admin.rewards.configurations', 'admin.rewards.setPoints', 'admin.wallet.configurations'];
-    @endphp
-    @canany(['reward_configurations', 'set_reward_points'])
-        <li class="side-nav-item nav-item {{ areActiveRoutes($rewardsActiveRoutes, 'tt-menu-item-active') }}">
-            <a data-bs-toggle="collapse" href="#manageRewards"
-                aria-expanded="{{ areActiveRoutes($rewardsActiveRoutes, 'true') }}" aria-controls="manageRewards"
-                class="side-nav-link tt-menu-toggle">
-                <span class="tt-nav-link-icon"><i data-feather="award"></i></span>
-                <span class="tt-nav-link-text">{{ localize('Rewards & Wallet') }}</span>
-            </a>
-            <div class="collapse {{ areActiveRoutes($rewardsActiveRoutes, 'show') }}" id="manageRewards">
-                <ul class="side-nav-second-level">
-
-                    @can('reward_configurations')
-                        <li class="{{ areActiveRoutes(['admin.rewards.configurations'], 'tt-menu-item-active') }}">
-                            <a href="{{ route('admin.rewards.configurations') }}"
-                                class="{{ areActiveRoutes(['admin.rewards.configurations']) }}">{{ localize('Reward Configurations') }}</a>
-                        </li>
-                    @endcan
-
-                    @can('set_reward_points')
-                        <li class="{{ areActiveRoutes(['admin.rewards.setPoints'], 'tt-menu-item-active') }}">
-                            <a href="{{ route('admin.rewards.setPoints') }}">{{ localize('Set Reward Points') }}</a>
-                        </li>
-                    @endcan
-
-                    @can('wallet_configurations')
-                        <li class="{{ areActiveRoutes(['admin.wallet.configurations'], 'tt-menu-item-active') }}">
-                            <a href="{{ route('admin.wallet.configurations') }}"
-                                class="{{ areActiveRoutes(['admin.wallet.configurations']) }}">{{ localize('Wallet Configurations') }}</a>
-                        </li>
-                    @endcan
-                </ul>
-            </div>
-        </li>
-    @endcan --}}
-
     <!-- Users -->
     <li class="side-nav-title side-nav-item nav-item mt-3">
         <span class="tt-nav-title-text">{{ localize('Users') }}</span>
@@ -346,6 +248,17 @@
                 </span>
             </a>
         </li>
+        <li class="side-nav-item nav-item">
+    <a class="side-nav-link"
+       href="{{ route('admin.variation.requests') }}">
+
+        <i class="fa fa-code-branch me-2"></i>
+
+        <span class="tt-nav-link-text">
+            Variation Requests
+        </span>
+    </a>
+</li>
     @endif
     @can('pincodes')
         <li class="side-nav-item nav-item">
@@ -410,19 +323,6 @@
     <li class="side-nav-title side-nav-item nav-item mt-3">
         <span class="tt-nav-title-text">{{ localize('Contents') }}</span>
     </li>
-
-    <!-- tags -->
-    {{-- @php
-        $tagsActiveRoutes = ['admin.tags.index', 'admin.tags.edit'];
-    @endphp
-    @can('tags')
-        <li class="side-nav-item nav-item {{ areActiveRoutes($tagsActiveRoutes, 'tt-menu-item-active') }}">
-            <a href="{{ route('admin.tags.index') }}" class="side-nav-link">
-                <span class="tt-nav-link-icon"> <i data-feather="tag"></i></span>
-                <span class="tt-nav-link-text">{{ localize('Tags') }}</span>
-            </a>
-        </li>
-    @endcan --}}
 
     <!-- pages -->
     @php

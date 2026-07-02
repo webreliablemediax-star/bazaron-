@@ -343,6 +343,17 @@
                                                         pattern="\d{4,8}" inputmode="numeric">
                                                 </div>
                                             </div>
+                                             <div class="col-md-3">
+        <button
+            type="button"
+            class="btn btn-warning w-100"
+            data-bs-toggle="modal"
+            data-bs-target="#variationRequestModal" style="margin-top:26px";>
+
+            + Request Variation
+
+        </button>
+    </div>
                                         </div>
                                         @php
                                             $first_variation = $product->variations->first();
@@ -2586,5 +2597,137 @@
         </form>
     </div>
 </div>
+
+
+
+    <div class="modal fade"
+     id="variationRequestModal"
+     tabindex="-1"
+     aria-hidden="true">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <form method="POST"
+                  action="{{ route('vendor.variation.request.store') }}">
+
+                @csrf
+
+<input type="hidden"
+       name="product_id"
+       value="{{ $product->id }}">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Request New Variation
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+                </div>
+
+               <div class="modal-body">
+
+    <div class="mb-3">
+
+        <label class="form-label">
+            Variations
+        </label>
+
+        <div id="variation-values-wrapper">
+
+            <div class="d-flex gap-2 mb-2 variation-value-item">
+
+                <input type="text"
+                       name="variation_values[]"
+                       class="form-control"
+                       placeholder="Example: Material : Cotton"
+                       required>
+
+                <button type="button"
+                        class="btn btn-danger remove-variation-value">
+                    <i class="las la-trash"></i>
+                </button>
+
+            </div>
+
+        </div>
+
+        <button type="button"
+                id="add-variation-value"
+                class="btn btn-success mt-2">
+            <i class="las la-plus"></i> Add Value
+        </button>
+
+    </div>
+
+</div>
+
+                   
+
+                
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+
+                    <button type="submit"
+                            class="btn btn-warning">
+                        Submit Request
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+<script>
+document.addEventListener('click', function (e) {
+
+    if (e.target.closest('#add-variation-value')) {
+
+        let html = `
+            <div class="d-flex gap-2 mb-2 variation-value-item">
+
+                <input type="text"
+                       name="variation_values[]"
+                       class="form-control"
+                       placeholder="Example: Material : Cotton"
+                       required>
+
+                <button type="button"
+                        class="btn btn-danger remove-variation-value">
+                    <i class="las la-trash"></i>
+                </button>
+
+            </div>
+        `;
+
+        document
+            .getElementById('variation-values-wrapper')
+            .insertAdjacentHTML('beforeend', html);
+    }
+
+    if (e.target.closest('.remove-variation-value')) {
+
+        let rows = document.querySelectorAll('.variation-value-item');
+
+        if (rows.length > 1) {
+            e.target.closest('.variation-value-item').remove();
+        }
+    }
+});
+</script>
 @endif
 @endsection
