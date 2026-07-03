@@ -74,20 +74,20 @@
                                     <textarea class="form-control" id="short_description" 
                                     placeholder="{{ localize('Type your product short description') }}" rows="5" name="short_description">{{ $product->collectLocalization('short_description', $lang_key) }}</textarea>
                                 </div>
-                            <div class="mb-4">
-                                <label class="form-label">Delivery Days</label>
+                          <div class="mb-4">
+    <label class="form-label">Delivery Days</label>
 
     <input
         type="number"
         class="form-control"
-        value="{{ $product->delivery_days ?? 1 }}"
+        value="{{ $product->delivery_days }}"
         readonly
     >
 
     <input
         type="hidden"
         name="delivery_days"
-        value="{{ $product->delivery_days ?? 1 }}"
+        value="{{ $product->delivery_days }}"
     >
 
     <input
@@ -343,17 +343,6 @@
                                                         pattern="\d{4,8}" inputmode="numeric">
                                                 </div>
                                             </div>
-                                             <div class="col-md-3">
-        <button
-            type="button"
-            class="btn btn-warning w-100"
-            data-bs-toggle="modal"
-            data-bs-target="#variationRequestModal" style="margin-top:26px";>
-
-            + Request Variation
-
-        </button>
-    </div>
                                         </div>
                                         @php
                                             $first_variation = $product->variations->first();
@@ -426,6 +415,17 @@
                                                         class="form-control" maxlength="8" pattern="\d{1,8}"
                                                         inputmode="numeric" required readonly>
                                                 </div>
+                                                 <div class="col-md-3">
+        <button
+            type="button"
+            class="btn btn-warning w-100"
+            data-bs-toggle="modal"
+            data-bs-target="#variationRequestModal" style="margin-top:26px";>
+
+            + Request Variation
+
+        </button>
+    </div>
                                                 <div id="variation_combination"
                                                     class="border bg-light-subtle rounded p-2 mb-4">
                                                     <table class="table table-bordered">
@@ -2668,7 +2668,7 @@
 
                    
 
-                
+                </div>
 
                 <div class="modal-footer">
 

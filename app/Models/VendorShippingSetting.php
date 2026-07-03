@@ -35,6 +35,7 @@ class VendorShippingSetting extends Model
         'cutoff_time',
 
         'handling_days',
+        'delivery_type',   
         'holiday_year',
 'bazaron_only',
 'self_ship_only',

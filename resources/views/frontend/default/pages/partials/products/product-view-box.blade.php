@@ -298,9 +298,9 @@
                         {{ $stock > 0 ? 'In Stock' : 'Out of Stock' }}
                     </p>
                      <p class="small">
-    <strong>FREE Delivery</strong>
-    in {{ getSetting('free_delivery_text') ?? '3-7 days' }}
-</p>
+                <strong>FREE Delivery</strong>
+                in {{ getSetting('free_delivery_text') ?? '3-7 days' }}
+              </p>
            
                 @php
                     $vendorName = $product->vendorProfile->business_name ?? 'Seller';

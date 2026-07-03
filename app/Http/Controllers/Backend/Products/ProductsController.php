@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Backend\Products;
 
 use App\Models\VariationGallery;
 use App\Http\Controllers\Controller;
+use App\Models\VendorShippingSetting;
 use App\Models\Language;
 use App\Models\Brand;
 use App\Models\VendorBrandRequest;
@@ -121,6 +122,10 @@ class ProductsController extends Controller
         $tags = Tag::all();
         // ✅ IMPORTANT
         $product = null;
+        $shipping = VendorShippingSetting::where(
+    'user_id',
+    auth()->id()
+)->first();
         do {
     
             $nextProductCode ='BZIN' . str_pad(mt_rand(0, 999999), 6, '0', STR_PAD_LEFT);
@@ -139,7 +144,8 @@ class ProductsController extends Controller
             'taxes',
             'tags',
             'product',
-            'nextProductCode'
+            'nextProductCode',
+            'shipping'
         ));
     }
     # get variation values to add new product
@@ -376,7 +382,13 @@ class ProductsController extends Controller
         $product->short_description = $request->short_description;
         $product->min_selling_price = $request->min_selling_price;
         $product->max_selling_price = $request->max_selling_price;
-        $product->delivery_days = $request->delivery_days ?? 1;
+     $shippingSetting = VendorShippingSetting::where(
+    'user_id',
+    auth()->id()
+)->first();
+
+$product->delivery_days =
+    $shippingSetting->handling_days ?? 1;
         // 🔥 bazaron BASIC IDENTIFIERS (NEW - SAME PATTERN)
         $product->external_product_id = $request->external_product_id;
         $product->product_id_type = $request->product_id_type;
@@ -797,12 +809,18 @@ foreach ($variations as $variation) {
                 $generic = \App\Models\Brand::where('name', 'Generic')->first();
                 $brand_id = $generic ? $generic->id : 44; // fallback
             }
-            $product->brand_id = $brand_id;
-            $product->unit_id = $request->unit_id;
-            $product->short_description = $request->short_description;
-            $product->min_selling_price = $request->min_selling_price;
-            $product->max_selling_price = $request->max_selling_price;
-            $product->delivery_days = $request->delivery_days ?? 1;
+                $product->brand_id = $brand_id;
+                $product->unit_id = $request->unit_id;
+                $product->short_description = $request->short_description;
+                $product->min_selling_price = $request->min_selling_price;
+                $product->max_selling_price = $request->max_selling_price;
+            $shippingSetting = VendorShippingSetting::where(
+        'user_id',
+        auth()->id()
+    )->first();
+
+    $product->delivery_days =
+        $shippingSetting->handling_days ?? 1;
             // 🔥 NEW BASIC IDENTIFIERS UPDATE (SAME PATTERN - NO NEW LOGIC)
             $product->external_product_id = $request->external_product_id;
             $product->product_id_type = $request->product_id_type;

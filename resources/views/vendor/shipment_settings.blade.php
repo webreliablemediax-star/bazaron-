@@ -2,6 +2,9 @@
 @php
     $shipping_type = $vendorShippingSetting->shipping_type ?? 'self';
 @endphp
+@php
+    $zoneReadOnly = auth()->user()->user_type == 'vendor';
+@endphp
 @section('title')
     Shipment Settings
 @endsection
@@ -77,8 +80,8 @@
 
                                 <div class="col-md-3 mb-3">
                                     <label>Handling Days</label>
-                                    <input type="number" class="form-control" name="handling_days"
-                                        value="{{ $shipping->handling_days }}">
+                                    <input type="number" class="form-control" id="handling_days" name="handling_days"
+                                        value="{{ $shipping->handling_days }}" readonly>
                                 </div>
 
                                 <div class="col-md-3 mb-3">
@@ -455,68 +458,52 @@
             </p>
 
 
-            <div class="row mt-4">
+          <div class="row mt-4">
 
-                <div class="col-md-4">
+    <div class="col-md-4">
+        <div class="form-check">
+            <input type="radio"
+                   class="form-check-input"
+                   id="same_day"
+                   name="delivery_type"
+                   value="same_day"
+                   {{ $shipping->delivery_type == 'same_day' ? 'checked' : '' }}>
 
-                    <div class="form-check form-switch">
+            <label class="form-check-label" for="same_day">
+                Same Day Delivery
+            </label>
+        </div>
+    </div>
 
-                        <input type="checkbox"
-                               class="form-check-input"
-                               name="same_day_enabled"
-                               {{ $shipping->same_day_enabled ? 'checked' : '' }}>
+    <div class="col-md-4">
+        <div class="form-check">
+           <input type="radio"
+       name="delivery_type"
+       value="one_day"
+       {{ empty($shipping->delivery_type) || $shipping->delivery_type == 'one_day' ? 'checked' : '' }}>
 
-                        <label class="form-check-label">
+            <label class="form-check-label" for="one_day">
+                One Day Delivery
+            </label>
+        </div>
+    </div>
 
-                            Same Day Delivery
+    <div class="col-md-4">
+        <div class="form-check">
+            <input type="radio"
+                   class="form-check-input"
+                   id="two_day"
+                   name="delivery_type"
+                   value="two_day"
+                   {{ $shipping->delivery_type == 'two_day' ? 'checked' : '' }}>
 
-                        </label>
+            <label class="form-check-label" for="two_day">
+                Two Day Delivery
+            </label>
+        </div>
+    </div>
 
-                    </div>
-
-                </div>
-
-
-                <div class="col-md-4">
-
-                    <div class="form-check form-switch">
-
-                        <input type="checkbox"
-                               class="form-check-input"
-                               name="one_day_enabled"
-                               {{ $shipping->one_day_enabled ? 'checked' : '' }}>
-
-                        <label class="form-check-label">
-
-                            One Day Delivery
-
-                        </label>
-
-                    </div>
-
-                </div>
-
-
-                <div class="col-md-4">
-
-                    <div class="form-check form-switch">
-
-                        <input type="checkbox"
-                               class="form-check-input"
-                               name="two_day_enabled"
-                               {{ $shipping->two_day_enabled ? 'checked' : '' }}>
-
-                        <label class="form-check-label">
-
-                            Two Day Delivery
-
-                        </label>
-
-                    </div>
-
-                </div>
-
-            </div>
+</div>
 
         </div>
 
@@ -594,11 +581,12 @@
         <div class="row">
 
             <div class="col-md-4">
-                <label>Regions</label>
+                <label>Regions </label>
 
                 <textarea class="form-control"
-                          rows="2"
-                          name="standard_zone1_regions">{{ $shipping->standard_zone1_regions }}</textarea>
+              rows="2"
+              name="standard_zone1_regions"
+              {{ $zoneReadOnly ? 'readonly' : '' }}>{{ $shipping->standard_zone1_regions }}</textarea>
             </div>
 
             <div class="col-md-2">
@@ -607,7 +595,7 @@
                 <input type="text"
                        class="form-control"
                        name="standard_zone1_transit_time"
-                       value="{{ $shipping->standard_zone1_transit_time }}">
+                       value="{{ $shipping->standard_zone1_transit_time }}"  {{ $zoneReadOnly ? 'readonly' : '' }}>
             </div>
 
             <div class="col-md-3">
@@ -617,7 +605,8 @@
                        step="0.01"
                        class="form-control"
                        name="standard_zone1_fee_order"
-                       value="{{ $shipping->standard_zone1_fee_order }}">
+                       value="{{ $shipping->standard_zone1_fee_order }}"
+                        {{ $zoneReadOnly ? 'readonly' : '' }}>
             </div>
 
             <div class="col-md-3">
@@ -648,9 +637,10 @@
             <div class="col-md-4">
                 <label>Regions</label>
 
-                <textarea class="form-control"
-                          rows="2"
-                          name="standard_zone2_regions">{{ $shipping->standard_zone2_regions }}</textarea>
+               <textarea class="form-control"
+              rows="2"
+              name="standard_zone2_regions"
+              {{ $zoneReadOnly ? 'readonly' : '' }}>{{ $shipping->standard_zone2_regions }}</textarea>
             </div>
 
             <div class="col-md-2">
@@ -659,7 +649,7 @@
                 <input type="text"
                        class="form-control"
                        name="standard_zone2_transit_time"
-                       value="{{ $shipping->standard_zone2_transit_time }}">
+                       value="{{ $shipping->standard_zone2_transit_time }}"  {{ $zoneReadOnly ? 'readonly' : '' }}>
             </div>
 
             <div class="col-md-3">
@@ -700,18 +690,19 @@
             <div class="col-md-4">
                 <label>Regions</label>
 
-                <textarea class="form-control"
-                          rows="2"
-                          name="standard_zone3_regions">{{ $shipping->standard_zone3_regions }}</textarea>
+               <textarea class="form-control"
+              rows="2"
+              name="standard_zone3_regions"
+              {{ $zoneReadOnly ? 'readonly' : '' }}>{{ $shipping->standard_zone3_regions }}</textarea>
             </div>
 
             <div class="col-md-2">
                 <label>Transit Time</label>
 
-                <input type="text"
+               <input type="text"
                        class="form-control"
                        name="standard_zone3_transit_time"
-                       value="{{ $shipping->standard_zone3_transit_time }}">
+                       value="{{ $shipping->standard_zone3_transit_time }}"  {{ $zoneReadOnly ? 'readonly' : '' }}>
             </div>
 
             <div class="col-md-3">
@@ -753,9 +744,10 @@
             <div class="col-md-4">
                 <label>Regions</label>
 
-                <textarea class="form-control"
-                          rows="2"
-                          name="standard_zone4_regions">{{ $shipping->standard_zone4_regions }}</textarea>
+               <textarea class="form-control"
+              rows="2"
+              name="standard_zone4_regions"
+              {{ $zoneReadOnly ? 'readonly' : '' }}>{{ $shipping->standard_zone4_regions }}</textarea>
             </div>
 
             <div class="col-md-2">
@@ -764,7 +756,7 @@
                 <input type="text"
                        class="form-control"
                        name="standard_zone4_transit_time"
-                       value="{{ $shipping->standard_zone4_transit_time }}">
+                       value="{{ $shipping->standard_zone4_transit_time }}"  {{ $zoneReadOnly ? 'readonly' : '' }}>
             </div>
 
             <div class="col-md-3">
@@ -806,9 +798,10 @@
             <div class="col-md-4">
                 <label>Regions</label>
 
-                <textarea class="form-control"
-                          rows="2"
-                          name="standard_zone5_regions">{{ $shipping->standard_zone5_regions }}</textarea>
+               <textarea class="form-control"
+              rows="2"
+              name="standard_zone5_regions"
+              {{ $zoneReadOnly ? 'readonly' : '' }}>{{ $shipping->standard_zone5_regions }}</textarea>
             </div>
 
             <div class="col-md-2">
@@ -817,7 +810,7 @@
                 <input type="text"
                        class="form-control"
                        name="standard_zone5_transit_time"
-                       value="{{ $shipping->standard_zone5_transit_time }}">
+                       value="{{ $shipping->standard_zone5_transit_time }}"  {{ $zoneReadOnly ? 'readonly' : '' }}>
             </div>
 
             <div class="col-md-3">
@@ -875,4 +868,25 @@
             }
         });
     </script>
+    <script>
+
+    document.querySelectorAll('input[name="delivery_type"]').forEach(function (radio) {
+
+        radio.addEventListener('change', function () {
+
+            let days = 1;
+
+            if (this.value === 'same_day') {
+                days = 0;
+            } else if (this.value === 'two_day') {
+                days = 2;
+            }
+
+            document.getElementById('handling_days').value = days;
+
+        });
+
+    });
+
+</script>
 @endsection

@@ -77,9 +77,21 @@ public function profileSettingsUpdate(Request $request)
 
 public function shipmentSettings()
 {
-    $shipping = VendorShippingSetting::firstOrCreate(
-        ['user_id' => auth()->id()]
-    );
+    if (auth()->id() == 1) {
+
+        // Admin apna data edit karega
+        $shipping = VendorShippingSetting::firstOrCreate(
+            ['user_id' => auth()->id()]
+        );
+
+    } else {
+
+        // Seller ko sirf admin ka default template dikhega
+        $shipping = VendorShippingSetting::where(
+            'is_default_template',
+            1
+        )->first();
+    }
 
     return view('vendor.shipment_settings', compact('shipping'));
 }
@@ -111,6 +123,25 @@ public function shipmentSettingsUpdate(Request $request)
     $data['same_day_enabled'] = $request->has('same_day_enabled') ? 1 : 0;
     $data['one_day_enabled'] = $request->has('one_day_enabled') ? 1 : 0;
     $data['two_day_enabled'] = $request->has('two_day_enabled') ? 1 : 0;
+
+// Delivery Type => Handling Days Mapping
+$data['delivery_type'] = $request->delivery_type ?? 'one_day';
+
+switch ($data['delivery_type']) {
+
+    case 'same_day':
+        $data['handling_days'] = 0;
+        break;
+
+    case 'two_day':
+        $data['handling_days'] = 2;
+        break;
+
+    default:
+        $data['delivery_type'] = 'one_day';
+        $data['handling_days'] = 1;
+        break;
+}
     // Self Shipping
     $data['is_default_template'] = $request->has('is_default_template') ? 1 : 0;
 

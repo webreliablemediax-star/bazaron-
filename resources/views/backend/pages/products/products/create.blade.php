@@ -49,13 +49,13 @@
                                     <textarea class="form-control" id="short_description"
                                         placeholder="{{ localize('Type your product short description') }}" rows="5" name="short_description"></textarea>
                                 </div>
-                               <div class="mb-4">
+                            <div class="mb-4">
     <label class="form-label">Delivery Days</label>
 
     <input
         type="number"
         class="form-control"
-        value="{{ $product->delivery_days ?? 1 }}"
+        value="{{ $product->delivery_days ?? ($shipping->handling_days ?? 1) }}"
         readonly
     >
 
