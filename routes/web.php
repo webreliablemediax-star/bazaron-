@@ -93,6 +93,17 @@ Route::prefix('vendor')
     Route::get('/invoice-config', [VendorDashboardController::class, 'invoiceConfig'])
         ->name('invoice.config');
 
+        Route::get(
+    '/request-approvals',
+    [VendorDashboardController::class, 'requestApprovals']
+)->name('request.approvals');
+//Holidays
+Route::get('/holidays', [VendorDashboardController::class, 'holidays'])
+    ->name('holidays');
+    Route::post('/holidays/store', [VendorDashboardController::class, 'storeHoliday'])
+    ->name('holidays.store');
+Route::delete('/holidays/{id}', [VendorDashboardController::class, 'deleteHoliday'])
+    ->name('holidays.delete');
     Route::post('/invoice-config', [VendorDashboardController::class, 'invoiceConfigSave'])
         ->name('invoice.config.save');
          Route::get('/profile-settings', [VendorDashboardController::class, 'profileSettings'])

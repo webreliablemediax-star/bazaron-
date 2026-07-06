@@ -74,20 +74,32 @@
                                     <textarea class="form-control" id="short_description" 
                                     placeholder="{{ localize('Type your product short description') }}" rows="5" name="short_description">{{ $product->collectLocalization('short_description', $lang_key) }}</textarea>
                                 </div>
-                          <div class="mb-4">
-    <label class="form-label">Delivery Days</label>
+                                
+               @php
+    $holidayCount = \App\Models\VendorHoliday::where(
+        'vendor_id',
+        auth()->id()
+    )
+    ->whereDate('holiday_date', now()->toDateString())
+    ->count();
+
+    $deliveryDays =
+        ($shipping->handling_days ?? 1) + $holidayCount;
+@endphp
+<div class="mb-4">
+    <label class="form-label">Handling Time</label>
 
     <input
-        type="number"
+        type="text"
         class="form-control"
-        value="{{ $product->delivery_days }}"
+        value="{{ $deliveryDays }} {{ $deliveryDays == 1 ? 'Day' : 'Days' }}"
         readonly
     >
 
     <input
         type="hidden"
         name="delivery_days"
-        value="{{ $product->delivery_days }}"
+        value="{{ $deliveryDays }}"
     >
 
     <input

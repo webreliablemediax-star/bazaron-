@@ -6,6 +6,7 @@ use App\Models\VariationGallery;
 use App\Http\Controllers\Controller;
 use App\Models\VendorShippingSetting;
 use App\Models\Language;
+use App\Models\VendorHoliday;
 use App\Models\Brand;
 use App\Models\VendorBrandRequest;
 use App\Models\Unit;
@@ -387,8 +388,15 @@ class ProductsController extends Controller
     auth()->id()
 )->first();
 
+$holidayCount = VendorHoliday::where(
+    'vendor_id',
+    auth()->id()
+)
+->whereDate('holiday_date', now()->toDateString())
+->count();
+
 $product->delivery_days =
-    $shippingSetting->handling_days ?? 1;
+    ($shippingSetting->handling_days ?? 1) + $holidayCount;
         // 🔥 bazaron BASIC IDENTIFIERS (NEW - SAME PATTERN)
         $product->external_product_id = $request->external_product_id;
         $product->product_id_type = $request->product_id_type;
@@ -814,13 +822,20 @@ foreach ($variations as $variation) {
                 $product->short_description = $request->short_description;
                 $product->min_selling_price = $request->min_selling_price;
                 $product->max_selling_price = $request->max_selling_price;
-            $shippingSetting = VendorShippingSetting::where(
-        'user_id',
-        auth()->id()
-    )->first();
+           $shippingSetting = VendorShippingSetting::where(
+    'user_id',
+    auth()->id()
+)->first();
 
-    $product->delivery_days =
-        $shippingSetting->handling_days ?? 1;
+$holidayCount = VendorHoliday::where(
+    'vendor_id',
+    auth()->id()
+)
+->whereDate('holiday_date', now()->toDateString())
+->count();
+
+$product->delivery_days =
+    ($shippingSetting->handling_days ?? 1) + $holidayCount;
             // 🔥 NEW BASIC IDENTIFIERS UPDATE (SAME PATTERN - NO NEW LOGIC)
             $product->external_product_id = $request->external_product_id;
             $product->product_id_type = $request->product_id_type;

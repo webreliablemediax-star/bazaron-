@@ -3,6 +3,10 @@
 namespace App\Http\Controllers\Vendor;
 use App\Models\VendorShippingSetting;
 use App\Http\Controllers\Controller;
+use App\Models\VendorBrandRequest;
+use App\Models\VariationRequest;
+use App\Models\PurchaseQuantityRequest;
+use App\Models\VendorHoliday;
 use Illuminate\Http\Request;
 use App\Models\VendorProfile;
 use App\Models\VendorProfileUpdateRequest;
@@ -77,23 +81,30 @@ public function profileSettingsUpdate(Request $request)
 
 public function shipmentSettings()
 {
-    if (auth()->id() == 1) {
+    $adminTemplate = VendorShippingSetting::where(
+        'is_default_template',
+        1
+    )->first();
 
-        // Admin apna data edit karega
-        $shipping = VendorShippingSetting::firstOrCreate(
-            ['user_id' => auth()->id()]
-        );
+    $shipping = VendorShippingSetting::firstOrCreate(
+        ['user_id' => auth()->id()],
+        [
+            'delivery_type' => $adminTemplate->delivery_type ?? 'one_day',
+            'handling_days' => $adminTemplate->handling_days ?? 1,
+        ]
+    );
 
-    } else {
+    $holidays = VendorHoliday::where(
+        'vendor_id',
+        auth()->id()
+    )
+    ->orderBy('holiday_date')
+    ->get();
 
-        // Seller ko sirf admin ka default template dikhega
-        $shipping = VendorShippingSetting::where(
-            'is_default_template',
-            1
-        )->first();
-    }
-
-    return view('vendor.shipment_settings', compact('shipping'));
+    return view(
+        'vendor.shipment_settings',
+        compact('shipping', 'holidays')
+    );
 }
 public function shipmentSettingsUpdate(Request $request)
 {
@@ -135,6 +146,7 @@ switch ($data['delivery_type']) {
 
     case 'two_day':
         $data['handling_days'] = 2;
+        $data['delivery_days'] = $data['handling_days'];
         break;
 
     default:
@@ -169,4 +181,87 @@ switch ($data['delivery_type']) {
 
         return back()->with('success', 'Invoice updated successfully');
     }
+
+public function requestApprovals()
+{
+    $brandRequests = VendorBrandRequest::where(
+        'user_id',
+        auth()->id()
+    )->latest()->get();
+
+    $variationRequests = VariationRequest::with('product')
+        ->where('seller_id', auth()->id())
+        ->latest()
+        ->get();
+
+    $purchaseRequests = PurchaseQuantityRequest::with('product')
+        ->where('seller_id', auth()->id())
+        ->latest()
+        ->get();
+
+    return view(
+        'backend.vendors.request-approvals',
+        compact(
+            'brandRequests',
+            'variationRequests',
+            'purchaseRequests'
+        )
+    );
+}
+//HOLIDAY
+public function holidays()
+{
+    $holidays = VendorHoliday::where(
+        'vendor_id',
+        auth()->id()
+    )
+    ->orderBy('holiday_date')
+    ->get();
+
+    return view(
+        'vendor.holidays',
+        compact('holidays')
+    );
+}
+public function storeHoliday(Request $request)
+{
+    $request->validate([
+        'holiday_name' => 'required',
+        'holiday_date' => 'required|date',
+    ]);
+
+    $exists = VendorHoliday::where('vendor_id', auth()->id())
+        ->where('holiday_date', $request->holiday_date)
+        ->exists();
+
+    if ($exists) {
+
+        return back()->with(
+            'error',
+            'A holiday already exists on this date.'
+        );
+    }
+
+    VendorHoliday::create([
+        'vendor_id'    => auth()->id(),
+        'holiday_name' => $request->holiday_name,
+        'holiday_date' => $request->holiday_date,
+    ]);
+
+    return back()->with(
+        'success',
+        'Holiday added successfully'
+    );
+}
+public function deleteHoliday($id)
+{
+    VendorHoliday::where('id', $id)
+        ->where('vendor_id', auth()->id())
+        ->delete();
+
+    return back()->with(
+        'success',
+        'Holiday deleted successfully'
+    );
+}
 }

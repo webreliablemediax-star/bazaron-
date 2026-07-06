@@ -20,7 +20,20 @@
 
             <div class="card-body">
 
-                <form action="{{ route('vendor.shipment.settings.update') }}" method="POST">
+               
+
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+        @endif
+ <form action="{{ route('vendor.shipment.settings.update') }}" method="POST">
                     @csrf
 
                     <ul class="nav nav-tabs mb-4">
@@ -32,7 +45,7 @@
                         </li>
 
                         <li class="nav-item">
-                            <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#bazaron">
+                            <button type="button" class="nav-link" data-bs-toggle="tab" data-bs-target="#bazaron">  
                                 Bazaron Shipping
                             </button>
                         </li>
@@ -78,11 +91,37 @@
                                         value="{{ $shipping->cutoff_time }}">
                                 </div>
 
-                                <div class="col-md-3 mb-3">
-                                    <label>Handling Days</label>
-                                    <input type="number" class="form-control" id="handling_days" name="handling_days"
-                                        value="{{ $shipping->handling_days }}" readonly>
-                                </div>
+                              @php
+    $today = now()->toDateString();
+
+    $holidayCount = \App\Models\VendorHoliday::where(
+        'vendor_id',
+        auth()->id()
+    )
+    ->whereDate('holiday_date', $today)
+    ->count();
+
+    $finalHandlingDays =
+        ($shipping->handling_days ?? 1) + $holidayCount;
+@endphp
+
+<div class="col-md-3 mb-3">
+    <label>Handling Days</label>
+
+    <input
+        type="number"
+        class="form-control"
+        id="handling_days"
+        value="{{ $finalHandlingDays }}"
+        readonly
+    >
+
+    <input
+        type="hidden"
+        name="handling_days"
+        value="{{ $shipping->handling_days }}"
+    >
+</div>
 
                                 <div class="col-md-3 mb-3">
                                     <label>Order Capacity</label>
@@ -157,25 +196,99 @@
                             </div>
                             <hr class="my-4">
 
-                            <h5>Holidays</h5>
+                           <hr class="my-4">
 
-                            <div class="row mt-3">
+<h5>Holiday Calendar</h5>
 
-                                <div class="col-md-4">
-                                    <label>Holiday Year</label>
+<p class="text-muted mb-4">
+    Add holidays when your warehouse or business will remain closed.
+    Orders received on these dates will be processed on the next working day.
+</p>
 
-                                    <select class="form-control" name="holiday_year">
+<div class="row">
 
-                                        <option value="2025">2025</option>
+    <div class="col-md-5">
+        <label>Holiday Name</label>
 
-                                        <option value="2026" selected>2026</option>
+        <input type="text"
+       class="form-control"
+       name="holiday_name"
+       id="holiday_name"
+       placeholder="e.g. Diwali">
+    </div>
 
-                                        <option value="2027">2027</option>
+    <div class="col-md-4">
+        <label>Holiday Date</label>
 
-                                    </select>
-                                </div>
+        <input type="date"
+       class="form-control"
+       name="holiday_date"
+       id="holiday_date">
+    </div>
 
-                            </div>
+ <div class="col-md-3 d-flex align-items-end">
+
+    <button type="button"
+            id="addHolidayBtn"
+            class="btn btn-primary w-100">
+        + Add Holiday
+    </button>
+
+</div>
+
+</div>
+
+<div class="table-responsive mt-4">
+
+    <table class="table table-bordered">
+
+        <thead class="table-light">
+            <tr>
+                <th>Holiday Name</th>
+                <th>Date</th>
+                <th width="100">Action</th>
+            </tr>
+        </thead>
+
+       <tbody>
+
+@forelse($holidays as $holiday)
+
+    <tr>
+
+        <td>{{ $holiday->holiday_name }}</td>
+
+        <td>    
+            {{ \Carbon\Carbon::parse($holiday->holiday_date)->format('d M Y') }}
+        </td>
+
+        <td>
+    <button type="button"
+            class="btn btn-sm btn-danger delete-holiday"
+            data-id="{{ $holiday->id }}">
+        <i class="fa fa-trash"></i>
+    </button>
+</td>
+
+    </tr>
+
+@empty
+
+    <tr>
+        <td colspan="3" class="text-center text-muted">
+            No holidays added yet
+        </td>
+    </tr>
+
+@endforelse
+
+</tbody>
+
+    </table>
+
+</div>
+
+<hr class="my-4">
                             <hr class="my-4">
 
 
@@ -408,9 +521,9 @@
 
         <div>
 
-            <h4 class="mb-0">
+            {{-- <h4 class="mb-0">
                 {{ $shipping->template_name ?: 'Migrated Template' }}
-            </h4>
+            </h4> --}}
 
             <small class="text-muted">
                 Default Template for New SKUs
@@ -420,7 +533,7 @@
 
         <div>
 
-            <div class="form-check form-switch">
+            {{-- <div class="form-check form-switch">
 
                 <input type="checkbox"
                        class="form-check-input"
@@ -431,7 +544,7 @@
                     Default Template
                 </label>
 
-            </div>
+            </div> --}}
 
         </div>
 
@@ -867,8 +980,7 @@
                 document.getElementById('bazaron_only').checked = false;
             }
         });
-    </script>
-    <script>
+    
 
     document.querySelectorAll('input[name="delivery_type"]').forEach(function (radio) {
 
@@ -888,5 +1000,65 @@
 
     });
 
+
+
+document.getElementById('addHolidayBtn').addEventListener('click', function () {    
+
+    let holidayName = document.getElementById('holiday_name').value;
+    let holidayDate = document.getElementById('holiday_date').value;
+
+    if (!holidayName || !holidayDate) {
+        alert('Please enter holiday name and date');
+        return;
+    }
+
+    let form = document.createElement('form');
+
+    form.method = 'POST';
+    form.action = "{{ route('vendor.holidays.store') }}";
+
+    form.innerHTML = `
+        @csrf
+        <input type="hidden" name="holiday_name" value="${holidayName}">
+        <input type="hidden" name="holiday_date" value="${holidayDate}">
+    `;
+
+    document.body.appendChild(form);
+
+    form.submit();
+
+});
+
+
+document.querySelectorAll('.delete-holiday').forEach(function(btn) {
+
+    btn.addEventListener('click', function() {
+
+        if (!confirm('Delete this holiday?')) {
+            return;
+        }
+
+        let id = this.dataset.id;
+
+        let form = document.createElement('form');
+
+        form.method = 'POST';
+
+        form.action = "{{ url('/vendor/holidays') }}/" + id;
+
+        form.innerHTML = `
+            @csrf
+            <input type="hidden" name="_method" value="DELETE">
+        `;
+
+        document.body.appendChild(form);
+
+        form.submit();
+
+    });
+
+});
+
 </script>
+
 @endsection

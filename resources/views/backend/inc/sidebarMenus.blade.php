@@ -301,6 +301,14 @@
         </li>
 
     @endif
+ @if (auth()->user()->user_type == 'vendor')
+   <li class="side-nav-item nav-item">
+    <a class="side-nav-link" href="{{ route('vendor.request.approvals') }}">
+        <i class="fa fa-check-circle me-2"></i>
+        <span class="tt-nav-link-text">Request Approval</span>
+    </a>
+</li>
+@endif
 
 
 
