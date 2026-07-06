@@ -56,7 +56,7 @@
                                                     'slug' => $child->slug,
                                                     'category_code' => $child->category_code,
                                                 ]) }}"
-                                                class="text-dark text-decoration-none">
+                                                    class="text-dark text-decoration-none">
                                                     {{ $child->collectLocalization('name') }}
                                                 </a>
                                             </h6>
@@ -84,38 +84,32 @@
                                         });
                                     @endphp
 
-                                      @foreach ($flyoutColumns as $column)
+                                    @foreach ($flyoutColumns as $column)
+                                        <div class="col-md-3">
 
-     <div class="col-md-3">
+                                            <h6 class="fw-bold mb-2">
+                                                {{ $column->title }}
+                                            </h6>
 
-        <h6 class="fw-bold mb-2">
-            {{ $column->title }}
-        </h6>
+                                            @if ($column->type === 'brand')
+                                                @php
+                                                    $brandIds = json_decode($column->brand_ids, true) ?? [];
 
-        @if ($column->type === 'brand')
+                                                    $brands = \App\Models\Brand::whereIn('id', $brandIds)->get();
+                                                @endphp
 
-            @php
-                $brandIds = json_decode($column->brand_ids, true) ?? [];
+                                                @foreach ($brands as $brand)
+                                                    <a href="{{ route('products.index', ['brand_id' => $brand->id]) }}"
+                                                        class="d-block mb-1 small text-dark">
 
-                $brands = \App\Models\Brand::whereIn('id', $brandIds)->get();
-            @endphp
+                                                        {{ $brand->name }}
 
-            @foreach ($brands as $brand)
+                                                    </a>
+                                                @endforeach
+                                            @endif
 
-                <a href="{{ route('products.index', ['brand_id' => $brand->id]) }}"
-                    class="d-block mb-1 small text-dark">
-
-                    {{ $brand->name }}
-
-                </a>
-
-            @endforeach
-
-        @endif
-
-    </div>
-
-@endforeach
+                                        </div>
+                                    @endforeach
 
                                 </div>
                             </div>
@@ -179,7 +173,7 @@
 
 
                 {{-- 🔥 BLOCK 1 : SUBCATEGORIES --}}
-               @if ($subcategories->count())
+                @if ($subcategories->count())
 
                     <div class="row gx-4 gy-4 mb-5">
                         @foreach ($subcategories as $sub)
@@ -239,30 +233,30 @@
 
                 {{-- 🔥 BLOCK 2 --}}
                 <!-- <div class="row gx-4 gy-4 my-5">
-                            @foreach ($subcategories as $sub)
+                                @foreach ($subcategories as $sub)
     <div class="col-xl-2-4 col-lg-3 col-md-4 col-6">
-                                    <a href="{{ route('products.index', ['category_id' => $sub->id]) }}"
-                                    class="category-card-lg text-decoration-none">
+                                        <a href="{{ route('products.index', ['category_id' => $sub->id]) }}"
+                                        class="category-card-lg text-decoration-none">
 
-                                        <h5 class="category-title-lg">
-                                            {{ $sub->name }}
-                                        </h5>
+                                            <h5 class="category-title-lg">
+                                                {{ $sub->name }}
+                                            </h5>
 
-                                        <div class="category-img-lg">
-                                            <img src="{{ $sub->thumbnail_image
-                                                ? uploadedAsset($sub->thumbnail_image)
-                                                : asset('frontend/default/images/placeholder.png') }}"
-                                                alt="{{ $sub->name }}">
-                                        </div>
+                                            <div class="category-img-lg">
+                                                <img src="{{ $sub->thumbnail_image
+                                                    ? uploadedAsset($sub->thumbnail_image)
+                                                    : asset('frontend/default/images/placeholder.png') }}"
+                                                    alt="{{ $sub->name }}">
+                                            </div>
 
-                                    </a>
-                                </div>
+                                        </a>
+                                    </div>
     @endforeach
-                        </div> -->
+                            </div> -->
 
 
                 {{-- 🔥 LAST BANNER --}}
-              @if ($category->banner_image_3 || $category->banner_image_4)
+                @if ($category->banner_image_3 || $category->banner_image_4)
                     <div class="row g-4 my-5">
 
                         @if ($category->banner_image_3)
@@ -377,8 +371,6 @@
 @endsection
 
 <style>
-
-
     .subcat-card {
         transition: all 0.3s ease;
         border: 1px solid #f1f1f1;

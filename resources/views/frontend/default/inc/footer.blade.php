@@ -46,13 +46,16 @@
                     @if ($count <= 10)
                         {{-- ✅ 10 ya kam → ek hi column --}}
                         <ul class="footer-nav">
-                            @foreach ($categories as $category)
-                                <li>
-                                    <a href="{{ route('products.index', ['category_id' => $category->id]) }}">
-                                        {{ $category->collectLocalization('name') }}
-                                    </a>
-                                </li>
-                            @endforeach
+                           @foreach ($categories as $category)
+    <li>
+        <a href="{{ route('category.landing', [
+            'slug' => $category->slug,
+            'category_code' => $category->category_code,
+        ]) }}">
+            {{ $category->collectLocalization('name') }}
+        </a>
+    </li>
+@endforeach
                         </ul>
                     @else
                         {{-- ✅ 10 se zyada → 2 column --}}
@@ -65,25 +68,31 @@
                         <div class="row">
                             <div class="col-6">
                                 <ul class="footer-nav">
-                                    @foreach ($firstHalf as $category)
-                                        <li>
-                                            <a href="{{ route('products.index', ['category_id' => $category->id]) }}">
-                                                {{ $category->collectLocalization('name') }}
-                                            </a>
-                                        </li>
-                                    @endforeach
+                                    @foreach ($categories as $category)
+    <li>
+        <a href="{{ route('category.landing', [
+            'slug' => $category->slug,
+            'category_code' => $category->category_code,
+        ]) }}">
+            {{ $category->collectLocalization('name') }}
+        </a>
+    </li>
+@endforeach
                                 </ul>
                             </div>
 
                             <div class="col-6">
                                 <ul class="footer-nav">
-                                    @foreach ($secondHalf as $category)
-                                        <li>
-                                            <a href="{{ route('products.index', ['category_id' => $category->id]) }}">
-                                                {{ $category->collectLocalization('name') }}
-                                            </a>
-                                        </li>
-                                    @endforeach
+                                    @foreach ($categories as $category)
+    <li>
+        <a href="{{ route('category.landing', [
+            'slug' => $category->slug,
+            'category_code' => $category->category_code,
+        ]) }}">
+            {{ $category->collectLocalization('name') }}
+        </a>
+    </li>
+@endforeach
                                 </ul>
                             </div>
                         </div>

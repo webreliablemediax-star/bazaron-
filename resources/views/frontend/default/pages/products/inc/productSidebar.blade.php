@@ -84,18 +84,21 @@
                 @foreach ($activeSubCategories as $subCat)
                     <div class="mb-2">
 
-                        <a href="{{ route('products.index', ['category_id' => $subCat->id]) }}"
+                        <a href="{{ route('category.landing', [
+                            'slug' => $subCat->slug,
+                            'category_code' => $subCat->category_code,
+                        ]) }}"
                             class="fw-medium text-dark">
 
                             {{ $subCat->collectLocalization('name') }}
 
                         </a>
 
-                    </div>
+                    </div>  
                 @endforeach
 
             @endif
-
+            
         </div>
 
     </div>

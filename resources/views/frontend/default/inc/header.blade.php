@@ -652,11 +652,12 @@
                     <ul>
                         @foreach ($navbarCategories as $cat)
                             <li>
-                                    <a href="{{ route('category.landing', [
+                                <a
+                                    href="{{ route('category.landing', [
                                         'slug' => $cat->slug,
                                         'category_code' => $cat->category_code,
                                     ]) }}">
-                                        {{ $cat->collectLocalization('name') }}
+                                    {{ $cat->collectLocalization('name') }}
                                 </a>
                             </li>
                         @endforeach
