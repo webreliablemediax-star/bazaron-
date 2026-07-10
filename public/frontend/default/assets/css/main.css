@@ -12553,7 +12553,7 @@ h4,
 
 h5,
 .h5 {
-    font-size: 1.25rem;
+    font-size: 1.00rem;
 }
 
 h6,
@@ -29487,7 +29487,7 @@ body {
 
 .footer-nav li a {
     color: #fff;
-    font-size: 14px;
+    font-size: 11px;
     display: block;
     padding: 5px 0;
     opacity: 0.8;

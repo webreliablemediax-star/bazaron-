@@ -3369,3 +3369,17 @@ input:checked + .slider:before {
 .ck-content li {
     display: list-item !important;
 }
+
+.footer-main-container {
+    max-width: 1350px;
+    margin: 0 auto;
+    padding-left: 40px;
+    padding-right: 40px;
+}
+
+.gshop-footer > .footer-main-container > .row {
+    justify-content: center;
+}
+.category-heading {
+    margin-left: -20px;
+}

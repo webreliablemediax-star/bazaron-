@@ -26,79 +26,52 @@
 
 <footer class="gshop-footer position-relative pt-8 z-1 overflow-hidden" style="background-color:rgb(0, 39, 86);">
 
-    <div class="container">
+   <div class="container footer-main-container">
 
-        <div class="row g-5">
-            <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6">
-                <div class="footer-widget">
-                    {{-- 🔹 Heading full width & center --}}
-                    <h5 class="text-white mb-2">
-                        {{ localize('Category') }}
-                    </h5>
-                    @php
-                        $footer_categories =
-                            getSetting('footer_categories') != null ? json_decode(getSetting('footer_categories')) : [];
+    <div class="row footer-main-row">
+           <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6">
+    <div class="footer-widget">
 
-                        $categories = \App\Models\Category::whereIn('id', $footer_categories)->get();
-                        $count = $categories->count();
-                    @endphp
+        <h5 class="text-white mb-2 category-heading">
+    {{ localize('Category') }}
+</h5>
+        @php
+            $footer_categories =
+                getSetting('footer_categories') != null
+                    ? json_decode(getSetting('footer_categories'))
+                    : [];
 
-                    @if ($count <= 10)
-                        {{-- ✅ 10 ya kam → ek hi column --}}
-                        <ul class="footer-nav">
-                           @foreach ($categories as $category)
-    <li>
-        <a href="{{ route('category.landing', [
-            'slug' => $category->slug,
-            'category_code' => $category->category_code,
-        ]) }}">
-            {{ $category->collectLocalization('name') }}
-        </a>
-    </li>
-@endforeach
-                        </ul>
-                    @else
-                        {{-- ✅ 10 se zyada → 2 column --}}
-                        @php
-                            $half = ceil($count / 2);
-                            $firstHalf = $categories->take($half);
-                            $secondHalf = $categories->skip($half);
-                        @endphp
+            $categories = \App\Models\Category::whereIn('id', $footer_categories)->get();
 
-                        <div class="row">
-                            <div class="col-6">
-                                <ul class="footer-nav">
-                                    @foreach ($categories as $category)
-    <li>
-        <a href="{{ route('category.landing', [
-            'slug' => $category->slug,
-            'category_code' => $category->category_code,
-        ]) }}">
-            {{ $category->collectLocalization('name') }}
-        </a>
-    </li>
-@endforeach
-                                </ul>
-                            </div>
+            // Har column me maximum 10 categories
+            $categoryChunks = $categories->chunk(10);
+        @endphp
 
-                            <div class="col-6">
-                                <ul class="footer-nav">
-                                    @foreach ($categories as $category)
-    <li>
-        <a href="{{ route('category.landing', [
-            'slug' => $category->slug,
-            'category_code' => $category->category_code,
-        ]) }}">
-            {{ $category->collectLocalization('name') }}
-        </a>
-    </li>
-@endforeach
-                                </ul>
-                            </div>
-                        </div>
-                    @endif
+        <div class="row">
+            @foreach ($categoryChunks as $categoryChunk)
+
+                <div class="col">
+                    <ul class="footer-nav">
+
+                        @foreach ($categoryChunk as $category)
+                            <li>
+                                <a href="{{ route('category.landing', [
+                                    'slug' => $category->slug,
+                                    'category_code' => $category->category_code,
+                                ]) }}">
+                                    {{ $category->collectLocalization('name') }}
+                                </a>
+                            </li>
+                        @endforeach
+
+                    </ul>
                 </div>
-            </div>
+
+            @endforeach
+        </div>
+
+    </div>
+</div>
 
             <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6">
                 <div class="footer-widget">

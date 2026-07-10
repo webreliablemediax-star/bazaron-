@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Vendor;
 use App\Models\VendorShippingSetting;
 use App\Http\Controllers\Controller;
 use App\Models\VendorBrandRequest;
+use App\Models\VendorAdditionalDocument;
 use App\Models\VariationRequest;
 use App\Models\PurchaseQuantityRequest;
 use App\Models\VendorHoliday;
@@ -25,35 +26,72 @@ class VendorDashboardController extends Controller
 
         return view('vendor.invoice_config', compact('vendor'));
     }
-    public function profileSettings()
+   public function profileSettings()
 {
     $vendor = VendorProfile::where('user_id', auth()->id())->first();
 
-    return view('vendor.profile_settings', compact('vendor'));
+    $additionalDocuments = VendorAdditionalDocument::where(
+        'vendor_id',
+        auth()->id()
+    )->latest()->get();
+
+    return view(
+        'vendor.profile_settings',
+        compact('vendor', 'additionalDocuments')
+    );
 }
 public function profileSettingsUpdate(Request $request)
 {
     $vendor = VendorProfile::where('user_id', auth()->id())->first();
 
     $changes = [];
+    $documentsUploaded = false;
 
-    foreach ($request->except('_token') as $field => $newValue) {
+    // Existing profile fields ka approval flow
+    foreach ($request->except([
+        '_token',
+        'kyc_docs',
+        'digital_signature',
+        'additional_documents'
+    ]) as $field => $newValue) {
 
         $oldValue = $vendor->$field;
 
-        if ((string)$oldValue != (string)$newValue) {
+        if ((string) $oldValue != (string) $newValue) {
 
             $changes[$field] = [
-
                 'old' => $oldValue,
-
                 'new' => $newValue
-
             ];
         }
     }
 
-    if (empty($changes)) {
+
+    // ADDITIONAL DOCUMENTS DIRECT VENDOR PROFILE ME SAVE
+   if ($request->hasFile('additional_documents')) {
+
+    foreach ($request->file('additional_documents') as $file) {
+
+        if ($file->isValid()) {
+
+            $path = $file->store(
+                'uploads/media',
+                'public'
+            );
+
+            VendorAdditionalDocument::create([
+                'vendor_id' => auth()->id(),
+                'file_path' => $path,
+            ]);
+        }
+    }
+
+    $documentsUploaded = true;
+}
+
+
+    // Kuch bhi change/upload nahi hua
+    if (empty($changes) && !$documentsUploaded) {
 
         return back()->with(
             'error',
@@ -61,18 +99,45 @@ public function profileSettingsUpdate(Request $request)
         );
     }
 
-    VendorProfileUpdateRequest::create([
 
-        'vendor_id' => auth()->id(),
+    // Sirf Additional Documents upload hue
+    if (empty($changes) && $documentsUploaded) {
 
-        'section' => 'profile',
+        return back()->with(
+            'success',
+            'Additional documents uploaded successfully.'
+        );
+    }
 
-        'request_data' => $changes,
 
-        'status' => 'pending'
+    // Baaki profile fields change hui hain
+    if (!empty($changes)) {
 
-    ]);
+        VendorProfileUpdateRequest::create([
 
+            'vendor_id' => auth()->id(),
+
+            'section' => 'profile',
+
+            'request_data' => $changes,
+
+            'status' => 'pending'
+
+        ]);
+    }
+
+
+    // Documents bhi upload hue + profile fields bhi change hui
+    if ($documentsUploaded) {
+
+        return back()->with(
+            'success',
+            'Additional documents uploaded successfully and profile update request sent for admin approval.'
+        );
+    }
+
+
+    // Sirf normal profile fields change hui
     return back()->with(
         'success',
         'Profile update request sent successfully. Waiting for admin approval.'

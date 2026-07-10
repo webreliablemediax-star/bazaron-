@@ -34,10 +34,14 @@ protected $fillable = [
 'invoice_prefix',
 'iec_code',
 'kyc_docs',
+'additional_documents',
 'has_own_logistics',
 'preferred_shipping',
 'warehouse_address',
 'agreed_terms'
+];
+protected $casts = [
+    'additional_documents' => 'array',
 ];
 // VendorProfile belongs to a User
 public function user()

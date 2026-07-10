@@ -840,6 +840,34 @@
                                     @endif
                                 </div>
                             </div>
+                            <div class="info-item">
+    <div class="label">Additional Documents</div>
+
+    <div class="value">
+        @php
+            $additionalDocuments = \App\Models\VendorAdditionalDocument::where(
+                'vendor_id',
+                $vendor->id
+            )->latest()->get();
+        @endphp
+
+        @if ($additionalDocuments->count() > 0)
+            <div class="d-flex flex-column gap-2">
+                @foreach ($additionalDocuments as $index => $document)
+                    <a href="{{ asset('storage/' . $document->file_path) }}"
+                       target="_blank"
+                       class="btn-sd info">
+                        View Document {{ $index + 1 }} →
+                    </a>
+
+                    
+                @endforeach
+            </div>
+        @else
+            —
+        @endif
+    </div>
+</div>
                         </div>
                     </div>
                 </div>
