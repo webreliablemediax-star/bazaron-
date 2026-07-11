@@ -3383,3 +3383,42 @@ input:checked + .slider:before {
 .category-heading {
     margin-left: -20px;
 }
+
+
+
+.mega-inner.mega-menu-8-grid {
+    display: grid !important;
+    grid-template-columns: repeat(8, 1fr) !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    gap: 20px !important;
+    align-items: start !important;
+}
+
+.mega-inner.mega-menu-8-grid > .mega-subcategory-column {
+    width: auto !important;
+    max-width: none !important;
+    flex: none !important;
+}
+
+.mega-inner.mega-menu-8-grid > .mega-special-column {
+    width: auto !important;
+    max-width: none !important;
+    flex: none !important;
+}
+
+/* Brand always column 7 */
+
+.mega-inner.mega-menu-8-grid > .mega-brand-column {
+    grid-column: 7 !important;
+}
+
+/* Variation always column 8 */
+
+.mega-inner.mega-menu-8-grid > .mega-variation-column {
+    grid-column: 8 !important;
+}
+
+.mega-category-group {
+    margin-bottom: 25px;
+}

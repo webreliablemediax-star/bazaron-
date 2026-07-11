@@ -35,11 +35,10 @@
                         <li class="subcat-item position-relative">
 
                             {{-- Sub Category Link --}}
-                            <a
-                                href="{{ route('category.landing', [
-                                    'slug' => $subCat->slug,
-                                    'category_code' => $subCat->category_code,
-                                ]) }}"
+                            <a href="{{ route('category.landing', [
+                                'slug' => $subCat->slug,
+                                'category_code' => $subCat->category_code,
+                            ]) }}"
                                 class="fw-medium text-dark subcat-link">
                                 {{ $subCat->collectLocalization('name') }}
                             </a>
@@ -47,58 +46,139 @@
                             {{-- FLYOUT --}}
                             @if ($subCat->childrenCategories->count())
                                 <div class="nav-fullWidthSubnavFlyout">
-                                    <div class="mega-inner d-flex flex-wrap">
+                                    <div class="mega-inner mega-menu-8-grid">
 
-                                        {{-- LEFT: Child Categories --}}
-                                        @foreach ($subCat->childrenCategories as $child)
-                                            <div class="col-md-3">
-                                                <h6 class="fw-bold mb-2">
-<a href="{{ route('category.landing', [
-    'slug' => $child->slug,
-    'category_code' => $child->category_code,
-]) }}"                                                        class="text-dark text-decoration-none">
-                                                        {{ $child->collectLocalization('name') }}
-                                                    </a>
-                                                </h6>
+                                        {{-- ===================================================== --}}
+                                        {{-- PREPARE DATA --}}
+                                        {{-- ===================================================== --}}
 
-                                                @foreach ($child->childrenCategories as $subChild)
-                                                    <a
-                                                        href="{{ route('category.landing', [
-                                                            'slug' => $subChild->slug,
-                                                            'category_code' => $subChild->category_code,
-                                                        ]) }}"
-                                                        class="d-block mb-1 small text-dark">
-                                                        {{ $subChild->collectLocalization('name') }}
-                                                    </a>
-                                                @endforeach
-                                            </div>
-                                        @endforeach
-
-                                        {{-- RIGHT: Mega Menu Columns --}}
                                         @php
+                                            /*
+                                             * Current sub category ke liye configured
+                                             * mega menu columns nikal rahe hain.
+                                             */
                                             $flyoutColumns = collect($megaMenuColumns ?? [])->filter(function (
                                                 $column,
                                             ) use ($subCat) {
                                                 if (!isset($column->categories) || $column->categories->isEmpty()) {
                                                     return false;
                                                 }
+
                                                 return $column->categories->pluck('id')->contains($subCat->id);
                                             });
+
+                                            /*
+                                             * BRAND columns alag
+                                             */
+                                            $brandColumns = $flyoutColumns->where('type', 'brand');
+
+                                            /*
+                                             * VARIATION columns alag
+                                             */
+                                            $variationColumns = $flyoutColumns->where('type', 'variation');
+
+                                            /*
+                                             * Child Categories ko maximum
+                                             * 6 columns me distribute karenge.
+                                             */
+                                            $childCategories = $subCat->childrenCategories;
+
+                                            $subcategoryColumns = collect([
+                                                collect(),
+                                                collect(),
+                                                collect(),
+                                                collect(),
+                                                collect(),
+                                                collect(),
+                                            ]);
+
+                                            /*
+                                             * Round-robin distribution
+                                             */
+                                            foreach ($childCategories as $index => $child) {
+                                                $columnIndex = $index % 6;
+
+                                                $subcategoryColumns[$columnIndex]->push($child);
+                                            }
+
                                         @endphp
 
-                                        @foreach ($flyoutColumns as $column)
-                                            <div class="col-md-3">
-                                                <h6 class="fw-bold mb-2">
-                                                    {{ $column->title }}
-                                                </h6>
 
-                                                {{-- BRAND --}}
-                                                @if ($column->type === 'brand')
+
+                                        {{-- ===================================================== --}}
+                                        {{-- FIRST 6 FIXED SUBCATEGORY COLUMNS --}}
+                                        {{-- ===================================================== --}}
+
+                                        @for ($i = 0; $i < 6; $i++)
+                                            <div class="mega-subcategory-column">
+
+                                                @foreach ($subcategoryColumns[$i] as $child)
+                                                    <div class="mega-category-group">
+
+                                                        {{-- CHILD CATEGORY --}}
+
+                                                        <h6 class="fw-bold mb-2">
+
+                                                            <a href="{{ route('category.landing', [
+                                                                'slug' => $child->slug,
+                                                                'category_code' => $child->category_code,
+                                                            ]) }}"
+                                                                class="text-dark text-decoration-none">
+
+                                                                {{ $child->collectLocalization('name') }}
+
+                                                            </a>
+
+                                                        </h6>
+
+
+
+                                                        {{-- SUB CHILD CATEGORIES --}}
+
+                                                        @foreach ($child->childrenCategories as $subChild)
+                                                            <a href="{{ route('category.landing', [
+                                                                'slug' => $subChild->slug,
+                                                                'category_code' => $subChild->category_code,
+                                                            ]) }}"
+                                                                class="d-block mb-1 small text-dark">
+
+                                                                {{ $subChild->collectLocalization('name') }}
+
+                                                            </a>
+                                                        @endforeach
+
+
+                                                    </div>
+                                                @endforeach
+
+                                            </div>
+                                        @endfor
+
+
+
+                                        {{-- ===================================================== --}}
+                                        {{-- COLUMN 7 : FIXED BRAND COLUMN --}}
+                                        {{-- ===================================================== --}}
+
+                                        <div class="mega-special-column mega-brand-column">
+
+                                            @foreach ($brandColumns as $column)
+                                                <div class="mega-category-group">
+
+                                                    <h6 class="fw-bold mb-2">
+
+                                                        {{ $column->title }}
+
+                                                    </h6>
+
+
                                                     @php
+
                                                         $brandIds = [];
 
                                                         if (!empty($column->brand_ids)) {
                                                             $decoded = json_decode($column->brand_ids, true);
+
                                                             $brandIds = is_array($decoded) ? $decoded : [];
                                                         } elseif (!empty($column->brand_id)) {
                                                             $brandIds = [$column->brand_id];
@@ -107,50 +187,90 @@
                                                         $brands = \App\Models\Brand::whereIn('id', $brandIds)
                                                             ->where('is_active', 1)
                                                             ->get();
+
                                                     @endphp
+
 
                                                     @foreach ($brands as $brand)
-                                                        <a href="{{ route('products.index', ['brand_id' => $brand->id]) }}"
+                                                        <a href="{{ route('products.index', [
+                                                            'brand_id' => $brand->id,
+                                                        ]) }}"
                                                             class="d-block mb-1 small text-dark">
+
                                                             {{ $brand->name }}
+
                                                         </a>
                                                     @endforeach
-                                                @endif
 
-                                                {{-- VARIATION --}}
-                                                @if ($column->type === 'variation' && $column->variation)
-                                                    @php
-                                                        $valueQuery = \App\Models\VariationValue::where(
-                                                            'variation_id',
-                                                            $column->variation_id,
-                                                        )->where('is_active', 1);
 
-                                                        if (!empty($column->variation_value_ids)) {
-                                                            $selectedValueIds = json_decode(
-                                                                $column->variation_value_ids,
-                                                                true,
-                                                            );
-                                                            if (
-                                                                is_array($selectedValueIds) &&
-                                                                count($selectedValueIds)
-                                                            ) {
-                                                                $valueQuery->whereIn('id', $selectedValueIds);
+                                                </div>
+                                            @endforeach
+
+                                        </div>
+
+
+
+                                        {{-- ===================================================== --}}
+                                        {{-- COLUMN 8 : FIXED VARIATION COLUMN --}}
+                                        {{-- ===================================================== --}}
+
+                                        <div class="mega-special-column mega-variation-column">
+
+                                            @foreach ($variationColumns as $column)
+                                                <div class="mega-category-group">
+
+                                                    <h6 class="fw-bold mb-2">
+
+                                                        {{ $column->title }}
+
+                                                    </h6>
+
+
+                                                    @if ($column->variation)
+                                                        @php
+
+                                                            $valueQuery = \App\Models\VariationValue::where(
+                                                                'variation_id',
+                                                                $column->variation_id,
+                                                            )->where('is_active', 1);
+
+                                                            if (!empty($column->variation_value_ids)) {
+                                                                $selectedValueIds = json_decode(
+                                                                    $column->variation_value_ids,
+                                                                    true,
+                                                                );
+
+                                                                if (
+                                                                    is_array($selectedValueIds) &&
+                                                                    count($selectedValueIds)
+                                                                ) {
+                                                                    $valueQuery->whereIn('id', $selectedValueIds);
+                                                                }
                                                             }
-                                                        }
 
-                                                        $filteredValues = $valueQuery->get();
-                                                    @endphp
+                                                            $filteredValues = $valueQuery->get();
 
-                                                    @foreach ($filteredValues as $val)
-                                                        <a href="{{ route('products.index', ['variation_value' => $val->id]) }}"
-                                                            class="d-block mb-1 small text-dark">
-                                                            {{ $val->name }}
-                                                        </a>
-                                                    @endforeach
-                                                @endif
+                                                        @endphp
 
-                                            </div>
-                                        @endforeach
+
+                                                        @foreach ($filteredValues as $val)
+                                                            <a href="{{ route('products.index', [
+                                                                'variation_value' => $val->id,
+                                                            ]) }}"
+                                                                class="d-block mb-1 small text-dark">
+
+                                                                {{ $val->name }}
+
+                                                            </a>
+                                                        @endforeach
+                                                    @endif
+
+
+                                                </div>
+                                            @endforeach
+
+                                        </div>
+
 
                                     </div>
                                 </div>
@@ -222,7 +342,7 @@
                             @endif
 
                             <div class="shop-grid">
- @if (isset($activeSubCategories) && $activeSubCategories->isNotEmpty())
+                                @if (isset($activeSubCategories) && $activeSubCategories->isNotEmpty())
                                     <div class="row gx-4  my-5">
                                         @foreach ($activeSubCategories as $sub)
                                             <div class="col-xl-2-4 col-lg-3 col-md-4 col-6">
@@ -231,7 +351,7 @@
                                                     'slug' => $sub->slug,
                                                     'category_code' => $sub->category_code,
                                                 ]) }}"
-                                                class="category-card-lg text-decoration-none">
+                                                    class="category-card-lg text-decoration-none">
 
                                                     <h5 class="category-title-lg">
                                                         {{ $sub->collectLocalization('name') }}
