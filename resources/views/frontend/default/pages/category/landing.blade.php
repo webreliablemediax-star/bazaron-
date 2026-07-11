@@ -732,6 +732,36 @@
         line-height: 1.9;
         margin-bottom: 12px;
     }
+
+    /* Mega menu me ek heading group se dusre heading group ka gap */
+.mega-category-group {
+    margin-bottom: 28px;
+}
+
+/* Last group ke neeche unnecessary gap nahi */
+.mega-subcategory-column .mega-category-group:last-child,
+.mega-special-column .mega-category-group:last-child {
+    margin-bottom: 0;
+}
+
+
+.category-seo-content ul {
+    list-style-type: disc !important;
+    padding-left: 30px !important;
+    margin-bottom: 15px !important;
+}
+
+.category-seo-content ol {
+    list-style-type: decimal !important;
+    padding-left: 30px !important;
+    margin-bottom: 15px !important;
+}
+
+.category-seo-content ul li,
+.category-seo-content ol li {
+    display: list-item !important;
+    margin-bottom: 6px;
+}
 </style>
 
 @section('scripts')

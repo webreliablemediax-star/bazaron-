@@ -355,7 +355,7 @@ Route::get('/coupons', [HomeController::class, 'allCoupons'])->name('home.coupon
 # pages
 // Route::get('/about-us', [HomeController::class, 'aboutUs'])->name('home.pages.aboutUs');
 Route::get('/contact-us', [HomeController::class, 'contactUs'])->name('home.pages.contactUs');
-Route::get('/{slug}', [HomeController::class, 'showPage'])->name('home.pages.show');
+// Route::get('/{slug}', [HomeController::class, 'showPage'])->name('home.pages.show');
 # contact us message
 Route::post('/contact-us', [ContactUsController::class, 'store'])->name('contactUs.store');
 # Subscribed Users
@@ -422,3 +422,7 @@ Route::post('razorpay/payment', [RazorpayController::class, 'payment'])->name('r
 # iyzico
 Route::any('/iyzico/payment/callback', [IyZicoController::class, 'callback'])->name('iyzico.callback');
 });
+
+// ALWAYS KEEP THIS ROUTE AT THE VERY END
+Route::get('/{slug}', [HomeController::class, 'showPage'])
+    ->name('home.pages.show');

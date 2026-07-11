@@ -1,19 +1,28 @@
 @extends('frontend.default.layouts.master')
 
-@section('title', $page->meta_title ?? $page->title)
+@section('title', $page?->meta_title ?? $page?->title ?? localize('Quick Links'))
 
-@section('meta_description', $page->meta_description ?? '')
+@section('meta_description', $page?->meta_description ?? '')
 
-@section('meta_keywords', $page->meta_keywords ?? '')
+@section('meta_keywords', $page?->meta_keywords ?? '')
 
 @section('breadcrumb-contents')
     <div class="breadcrumb-content">
-        <h2 class="mb-2 text-center">{{ $page->collectLocalization('title') }}</h2>
+        <h2 class="mb-2 text-center">
+            {{ $page ? $page->collectLocalization('title') : localize('Quick Links') }}
+        </h2>
+
         <nav>
             <ol class="breadcrumb justify-content-center">
-                <li class="breadcrumb-item fw-bold" aria-current="page"><a
-                        href="{{ route('home') }}">{{ localize('Home') }}</a></li>  
-                <li class="breadcrumb-item fw-bold" aria-current="page">{{ localize('Quick Links') }}</li>
+                <li class="breadcrumb-item fw-bold" aria-current="page">
+                    <a href="{{ route('home') }}">
+                        {{ localize('Home') }}
+                    </a>
+                </li>
+
+                <li class="breadcrumb-item fw-bold" aria-current="page">
+                    {{ localize('Quick Links') }}
+                </li>
             </ol>
         </nav>
     </div>
@@ -30,7 +39,15 @@
             <div class="row g-4">
                 <div class="col-12">
                     <div class="blog-details-content bg-white rounded-2 py-6 px-5">
-                        {!! $page->collectLocalization('content') !!}
+
+                        @if($page)
+                            {!! $page->collectLocalization('content') !!}
+                        @else
+                            <p class="text-center mb-0">
+                                {{ localize('Page content is not available.') }}
+                            </p>
+                        @endif
+
                     </div>
                 </div>
             </div>
