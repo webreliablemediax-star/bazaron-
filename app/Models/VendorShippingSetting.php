@@ -26,8 +26,8 @@ class VendorShippingSetting extends Model
         'friday',
         'saturday',
         'sunday',
-
-        'standard_saturday',
+        'weekly_off',
+ 'standard_saturday',
         'standard_sunday',
         'express_saturday',
         'express_sunday',
@@ -66,7 +66,6 @@ class VendorShippingSetting extends Model
 
 'template_name',
 'is_default_template',
-
 'same_day_enabled',
 'one_day_enabled',
 'two_day_enabled',

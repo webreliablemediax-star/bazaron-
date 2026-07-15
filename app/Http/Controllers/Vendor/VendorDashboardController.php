@@ -178,15 +178,7 @@ public function shipmentSettingsUpdate(Request $request)
     );
 
     $data = $request->except('_token');
-
-    // Operating Days
-    $data['monday'] = $request->has('monday') ? 1 : 0;
-    $data['tuesday'] = $request->has('tuesday') ? 1 : 0;
-    $data['wednesday'] = $request->has('wednesday') ? 1 : 0;
-    $data['thursday'] = $request->has('thursday') ? 1 : 0;
-    $data['friday'] = $request->has('friday') ? 1 : 0;
-    $data['saturday'] = $request->has('saturday') ? 1 : 0;
-    $data['sunday'] = $request->has('sunday') ? 1 : 0;
+        $data['weekly_off'] = $request->weekly_off;
 
     // Ship Through
     $data['bazaron_only'] = $request->has('bazaron_only') ? 1 : 0;
