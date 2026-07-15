@@ -166,10 +166,18 @@ counter.innerText=data.cartCount;
 }
 
 // subtotal update
-let subtotal=document.querySelector(".sub-total-price");
-
-if(subtotal){
+document.querySelectorAll(".sub-total-price").forEach(function(subtotal){
 subtotal.innerText=data.subTotal;
+});
+
+// Keep an already applied coupon and its recalculated discount in sync when
+// the cart quantity changes.
+let couponDiscountRow=document.querySelector(".coupon-discount-wrapper");
+let couponDiscountPrice=document.querySelector(".coupon-discount-price");
+
+if(couponDiscountRow && couponDiscountPrice && data.couponCode){
+couponDiscountRow.classList.remove("d-none");
+couponDiscountPrice.innerText=data.couponDiscount;
 }
 
 }
@@ -179,6 +187,94 @@ subtotal.innerText=data.subTotal;
 .catch(err=>console.log(err));
 
 }
+
+document.addEventListener('DOMContentLoaded', function () {
+    const couponForm = document.querySelector('.coupon-form');
+    if (!couponForm) return;
+
+    const couponInput = couponForm.querySelector('.coupon-input');
+    const applyButton = couponForm.querySelector('.apply-coupon-btn');
+    const clearButton = couponForm.querySelector('.clear-coupon-btn');
+    const couponDiscountRow = document.querySelector('.coupon-discount-wrapper');
+    const couponDiscountPrice = document.querySelector('.coupon-discount-price');
+
+    const showMessage = function (type, message) {
+        if (window.toastr) {
+            toastr[type === 'success' ? 'success' : 'error'](message);
+        } else {
+            alert(message);
+        }
+    };
+
+    couponForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        const code = couponInput.value.trim();
+        if (!code) return;
+
+        applyButton.disabled = true;
+
+        fetch("{{ route('carts.applyCoupon') }}", {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ code: code })
+        })
+        .then(function (response) {
+            if (!response.ok) throw new Error('Unable to apply coupon');
+            return response.json();
+        })
+        .then(function (data) {
+            showMessage(data.success ? 'success' : 'error', data.message);
+
+            if (!data.success) return;
+
+            couponInput.disabled = true;
+            applyButton.classList.add('d-none');
+            clearButton.classList.remove('d-none');
+            couponDiscountRow.classList.remove('d-none');
+            couponDiscountPrice.textContent = data.couponDiscount;
+        })
+        .catch(function () {
+            showMessage('error', 'Unable to apply coupon. Please try again.');
+        })
+        .finally(function () {
+            applyButton.disabled = false;
+        });
+    });
+
+    clearButton.addEventListener('click', function () {
+        clearButton.disabled = true;
+
+        fetch("{{ route('carts.clearCoupon') }}", {
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(function (response) {
+            if (!response.ok) throw new Error('Unable to remove coupon');
+            return response.json();
+        })
+        .then(function (data) {
+            showMessage(data.success ? 'success' : 'error', data.message);
+
+            if (!data.success) return;
+
+            couponInput.disabled = false;
+            couponInput.value = '';
+            clearButton.classList.add('d-none');
+            applyButton.classList.remove('d-none');
+            couponDiscountRow.classList.add('d-none');
+        })
+        .catch(function () {
+            showMessage('error', 'Unable to remove coupon. Please try again.');
+        })
+        .finally(function () {
+            clearButton.disabled = false;
+        });
+    });
+});
 
 
 

@@ -40,7 +40,7 @@ class CouponController extends Controller
     {
         $coupon = Coupon::where('code', $request->code)->first();
         if ($coupon) {
-            $date = strtotime(date('d-m-Y H:i:s'));
+            $date = strtotime(date('Y-m-d'));
 
             # check if coupon is not expired
             if ($coupon->start_date <= $date && $coupon->end_date >= $date) {

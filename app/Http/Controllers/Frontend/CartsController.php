@@ -121,9 +121,7 @@ if (Auth::check() && $product) {
 
         $cart->save();
 
-        removeCoupon();
-
-        return $this->getCartsInfo($message, false);
+        return $this->getCartsInfo($message, getCoupon() != '', getCoupon());
     }
 
 
@@ -172,9 +170,7 @@ if (Auth::check() && $product) {
         } catch (\Throwable $th) {
         }
 
-        removeCoupon();
-
-        return $this->getCartsInfo('', false);
+        return $this->getCartsInfo('', getCoupon() != '', getCoupon());
     }
 
 
@@ -187,11 +183,28 @@ if (Auth::check() && $product) {
 
         if ($coupon) {
 
-            $date = strtotime(date('d-m-Y H:i:s'));
+            // Coupons are configured as dates, so compare at the start of the
+            // current date. This also keeps previously saved end dates (00:00)
+            // valid through their displayed end date.
+            $date = strtotime(date('Y-m-d'));
 
-            if ($coupon->start_date <= $date && $coupon->end_date >= $date) {
+            if ($date < $coupon->start_date) {
+                removeCoupon();
 
-                $carts = null;
+                return $this->couponApplyFailed(
+                    localize('Coupon will be active from') . ' ' . date('d M Y', (int) $coupon->start_date)
+                );
+            }
+
+            if ($date > $coupon->end_date) {
+                removeCoupon();
+
+                return $this->couponApplyFailed(
+                    localize('Coupon expired on') . ' ' . date('d M Y', (int) $coupon->end_date)
+                );
+            }
+
+            $carts = null;
 
                 if (Auth::check()) {
                     $carts = Cart::where('user_id', Auth::user()->id)
@@ -206,6 +219,16 @@ if (Auth::check() && $product) {
                 $subTotal = (float) getSubTotal($carts, false);
 
                 if ($subTotal >= (float) $coupon->min_spend) {
+                    // A coupon restricted to products/categories must be checked before
+                    // saving it in the customer's cookie, not only at checkout.
+                    if (($coupon->product_ids || $coupon->category_ids)
+                        && !validateCouponForProductsAndCategories($carts, $coupon)) {
+                        removeCoupon();
+
+                        return $this->couponApplyFailed(
+                            localize('Coupon is only applicable for selected products or categories')
+                        );
+                    }
 
                     setCoupon($coupon);
 
@@ -218,11 +241,6 @@ if (Auth::check() && $product) {
                     return $this->couponApplyFailed('Please shop for atleast ' . formatPrice($coupon->min_spend));
                 }
 
-            }
-
-            removeCoupon();
-
-            return $this->couponApplyFailed(localize('Coupon is expired'));
         }
 
         removeCoupon();
@@ -259,6 +277,8 @@ if (Auth::check() && $product) {
     private function getCartsInfo($message = '', $couponDiscount = true, $couponCode = '', $alert = 'success')
     {
 
+        $couponCode = $couponCode ?: getCoupon();
+
         $carts = null;
 
         if (Auth::check()) {
@@ -283,9 +303,13 @@ if (Auth::check() && $product) {
 
             'cartCount' => count($carts),
 
-            'subTotal' => formatPrice(getSubTotal($carts, $couponDiscount, $couponCode)),
+            // Subtotal is always the cart amount before discount. The coupon
+            // discount is returned separately so the cart summary stays clear.
+            'subTotal' => formatPrice(getSubTotal($carts, false)),
 
             'couponDiscount' => formatPrice(getCouponDiscount(getSubTotal($carts, false), $couponCode)),
+
+            'couponCode' => $couponCode,
         ];
     }
 }

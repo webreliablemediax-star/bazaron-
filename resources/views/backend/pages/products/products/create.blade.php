@@ -57,8 +57,13 @@
     ->whereDate('holiday_date', now()->toDateString())
     ->count();
 
+    $weeklyOffCount = strcasecmp(
+        (string) ($shipping->weekly_off ?? ''),
+        now($shipping->timezone ?? config('app.timezone'))->format('l')
+    ) === 0 ? 1 : 0;
+
     $deliveryDays =
-        ($shipping->handling_days ?? 1) + $holidayCount;
+        ($shipping->handling_days ?? 1) + $holidayCount + $weeklyOffCount;
 @endphp
 
 <div class="mb-4">

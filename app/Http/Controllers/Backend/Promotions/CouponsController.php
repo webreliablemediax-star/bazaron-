@@ -74,8 +74,8 @@ class CouponsController extends Controller
         }
 
 
-        $coupon->start_date = strtotime($date_var[0]);
-        $coupon->end_date = strtotime($date_var[1]);
+        $coupon->start_date = strtotime($date_var[0] . ' 00:00:00');
+        $coupon->end_date = strtotime($date_var[1] . ' 23:59:59');
 
         $coupon->min_spend = $request->min_spend;
         $coupon->max_discount_amount = $request->max_discount_amount;
@@ -134,8 +134,8 @@ class CouponsController extends Controller
             $coupon->is_free_shipping = 0;
         }
 
-        $coupon->start_date = strtotime($date_var[0]);
-        $coupon->end_date = strtotime($date_var[1]);
+        $coupon->start_date = strtotime($date_var[0] . ' 00:00:00');
+        $coupon->end_date = strtotime($date_var[1] . ' 23:59:59');
 
         $coupon->min_spend = $request->min_spend;
         $coupon->max_discount_amount = $request->max_discount_amount;

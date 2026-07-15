@@ -395,8 +395,13 @@ $holidayCount = VendorHoliday::where(
 ->whereDate('holiday_date', now()->toDateString())
 ->count();
 
+$weeklyOffCount = strcasecmp(
+    (string) ($shippingSetting->weekly_off ?? ''),
+    now($shippingSetting->timezone ?? config('app.timezone'))->format('l')
+) === 0 ? 1 : 0;
+
 $product->delivery_days =
-    ($shippingSetting->handling_days ?? 1) + $holidayCount;
+    ($shippingSetting->handling_days ?? 1) + $holidayCount + $weeklyOffCount;
         // 🔥 bazaron BASIC IDENTIFIERS (NEW - SAME PATTERN)
         $product->external_product_id = $request->external_product_id;
         $product->product_id_type = $request->product_id_type;
@@ -834,8 +839,13 @@ $holidayCount = VendorHoliday::where(
 ->whereDate('holiday_date', now()->toDateString())
 ->count();
 
+$weeklyOffCount = strcasecmp(
+    (string) ($shippingSetting->weekly_off ?? ''),
+    now($shippingSetting->timezone ?? config('app.timezone'))->format('l')
+) === 0 ? 1 : 0;
+
 $product->delivery_days =
-    ($shippingSetting->handling_days ?? 1) + $holidayCount;
+    ($shippingSetting->handling_days ?? 1) + $holidayCount + $weeklyOffCount;
             // 🔥 NEW BASIC IDENTIFIERS UPDATE (SAME PATTERN - NO NEW LOGIC)
             $product->external_product_id = $request->external_product_id;
             $product->product_id_type = $request->product_id_type;

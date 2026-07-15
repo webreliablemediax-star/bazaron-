@@ -218,10 +218,9 @@
                         }
 
                         // subtotal update
-                        let subtotal = document.querySelector(".sub-total-price");
-                        if (subtotal) {
+                        document.querySelectorAll(".sub-total-price").forEach(function (subtotal) {
                             subtotal.innerText = data.subTotal;
-                        }
+                        });
 
                     }
 

@@ -102,8 +102,11 @@
                                     // Base handling days
                                     $baseHandlingDays = (int) ($shipping->handling_days ?? 1);
 
-                                    // Weekly off selected hai to +1
-                                    $weeklyOffCount = !empty($shipping->weekly_off) ? 1 : 0;
+                                    // Weekly off only adds a day when it falls on today.
+                                    $weeklyOffCount = strcasecmp(
+                                        (string) ($shipping->weekly_off ?? ''),
+                                        now($shipping->timezone ?? config('app.timezone'))->format('l')
+                                    ) === 0 ? 1 : 0;
 
                                     // FINAL = Base + Weekly Off + Holiday
                                     $finalHandlingDays = $baseHandlingDays + $weeklyOffCount + $holidayCount;
@@ -917,9 +920,11 @@
                 'input[name="weekly_off"]:checked'
             );
 
-            let weeklyOffCount = weeklyOff ? 1 : 0;
+            const currentWeekday = @json(now($shipping->timezone ?? config('app.timezone'))->format('l'));
+            const holidayCount = {{ (int) $holidayCount }};
+            let weeklyOffCount = weeklyOff && weeklyOff.value === currentWeekday ? 1 : 0;
 
-            let finalDays = baseDays + weeklyOffCount;
+            let finalDays = baseDays + holidayCount + weeklyOffCount;
 
             // Screen par final handling days
             document.getElementById('handling_days').value = finalDays;
