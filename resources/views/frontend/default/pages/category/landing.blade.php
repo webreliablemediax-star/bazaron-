@@ -632,7 +632,16 @@
         text-align: center;
         font-size: 14px;
         font-weight: 500;
-        margin-top: 8px;
+        line-height: 1.2;
+        height: 42px;
+        margin: 8px 10px 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        white-space: normal;
+        overflow: hidden;
+        overflow-wrap: anywhere;
+        word-break: break-word;
     }
 
     .col-xl-2-4 {

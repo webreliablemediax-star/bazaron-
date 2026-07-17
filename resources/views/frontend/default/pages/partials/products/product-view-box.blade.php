@@ -11,31 +11,33 @@
             <ul class="subcat-list d-flex align-items-center gap-4 mb-0 justify-content-center">
                 @foreach ($stripCategories as $subCat)
                     <li class="subcat-item position-relative">
-<a href="{{ route('category.landing', [
-    'slug' => $subCat->slug,
-    'category_code' => $subCat->category_code,
-]) }}" class="fw-medium text-dark subcat-link">                            {{ $subCat->collectLocalization('name') }}
+                        <a href="{{ route('category.landing', [
+                            'slug' => $subCat->slug,
+                            'category_code' => $subCat->category_code,
+                        ]) }}"
+                            class="fw-medium text-dark subcat-link"> {{ $subCat->collectLocalization('name') }}
                         </a>
                         {{-- FLYOUT --}}
                         @if ($subCat->childrenCategories && $subCat->childrenCategories->count())
                             <div class="nav-fullWidthSubnavFlyout">
                                 <div class="mega-inner d-flex flex-wrap">
                                     @foreach ($subCat->childrenCategories as $child)
-    <div class="col-md-3">
-        <h6 class="fw-bold mb-2">
-            <a href="{{ route('category.landing', [
-                'slug' => $child->slug,
-                'category_code' => $child->category_code,
-            ]) }}"
-                class="text-dark text-decoration-none">
-                {{ $child->collectLocalization('name') }}
-            </a>
-        </h6>
+                                        <div class="col-md-3">
+                                            <h6 class="fw-bold mb-2">
+                                                <a href="{{ route('category.landing', [
+                                                    'slug' => $child->slug,
+                                                    'category_code' => $child->category_code,
+                                                ]) }}"
+                                                    class="text-dark text-decoration-none">
+                                                    {{ $child->collectLocalization('name') }}
+                                                </a>
+                                            </h6>
                                             @foreach ($child->childrenCategories as $subChild)
-                                            <a href="{{ route('category.landing', [
-                                                'slug' => $subChild->slug,
-                                                'category_code' => $subChild->category_code,
-                                            ]) }}"                                                    class="d-block mb-1 small text-dark">
+                                                <a href="{{ route('category.landing', [
+                                                    'slug' => $subChild->slug,
+                                                    'category_code' => $subChild->category_code,
+                                                ]) }}"
+                                                    class="d-block mb-1 small text-dark">
                                                     {{ $subChild->collectLocalization('name') }}
                                                 </a>
                                             @endforeach
@@ -69,12 +71,12 @@
 
         @foreach ($breadcrumbCategories as $cat)
             <a
-            href="{{ route('category.landing', [
-                'slug' => $cat->slug,
-                'category_code' => $cat->category_code,
-            ]) }}">
-            {{ $cat->collectLocalization('name') }}
-        </a>
+                href="{{ route('category.landing', [
+                    'slug' => $cat->slug,
+                    'category_code' => $cat->category_code,
+                ]) }}">
+                {{ $cat->collectLocalization('name') }}
+            </a>
 
             @if (!$loop->last)
                 <span>›</span>
@@ -142,10 +144,12 @@
                             <!-- ❌ CLOSE BUTTON -->
                             <span class="close-share" onclick="closeShare()">✕</span>
                             <a href="#" onclick="shareEmail()">📧 Email</a>
-                            <a href="https://pinterest.com/pin/create/button/?url={{ url()->current() }}" target="_blank">
+                            <a href="https://pinterest.com/pin/create/button/?url={{ url()->current() }}"
+                                target="_blank">
                                 <i class="fab fa-pinterest"></i> Pinterest
                             </a>
-                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ url()->current() }}" target="_blank">
+                            <a href="https://www.facebook.com/sharer/sharer.php?u={{ url()->current() }}"
+                                target="_blank">
                                 <i class="fab fa-facebook"></i> Facebook
                             </a>
                             <a href="https://twitter.com/intent/tweet?url={{ url()->current() }}" target="_blank">
@@ -297,43 +301,44 @@
                     <p class="fw-semibold text-success">
                         {{ $stock > 0 ? 'In Stock' : 'Out of Stock' }}
                     </p>
-                     <p class="small">
-                <strong>FREE Delivery</strong>
-                in {{ getSetting('free_delivery_text') ?? '3-7 days' }}
-              </p>
-           
-                @php
-                    $vendorName = $product->vendorProfile->business_name ?? 'Seller';
-                    // $isSelfShipping = $product->vendorProfile->has_own_logistics;
-                    $isSelfShipping = optional($product->vendorProfile)->has_own_logistics ?? 0;
-                    // dd($isSelfShipping);
-                @endphp
+                    <p class="small">
+                        <strong>FREE Delivery</strong>
+                        in {{ getSetting('free_delivery_text') ?? '3-7 days' }}
+                    </p>
 
-                <div class="bazaron-meta align-items-right">
+                    @php
+                        $vendorName = $product->vendorProfile->business_name ?? 'Seller';
+                        // $isSelfShipping = $product->vendorProfile->has_own_logistics;
+                        $isSelfShipping = optional($product->vendorProfile)->has_own_logistics ?? 0;
+                        // dd($isSelfShipping);
+                    @endphp
 
-                    <div class="meta-row">
-                        <span class="meta-label">Ships from</span>
-                        <span class="meta-value">
-                            @if ($isSelfShipping == 1)
-                                <span class="text-success">{{ $vendorName }}</span>
-                            @else
-                                <span class="text-secondary">Bazaron Shipping</span>
-                            @endif
-                            {{-- {{ $isSelfShipping ? $vendorName : 'Bazaron' }} --}}
-                        </span>
+                    <div class="bazaron-meta align-items-right">
+
+                        <div class="meta-row">
+                            <span class="meta-label">Ships from</span>
+                            <span class="meta-value">
+                                @if ($isSelfShipping == 1)
+                                    <span class="text-success">{{ $vendorName }}</span>
+                                @else
+                                    <span class="text-secondary">Bazaron Shipping</span>
+                                @endif
+                                {{-- {{ $isSelfShipping ? $vendorName : 'Bazaron' }} --}}
+                            </span>
+                        </div>
+
+                        <div class="meta-row">
+                            <span class="meta-label">Sold by</span>
+                            <span class="meta-value seller-link">
+                                {{ $vendorName }}
+                            </span>
+                        </div>
+
                     </div>
 
-                    <div class="meta-row">
-                        <span class="meta-label">Sold by</span>
-                        <span class="meta-value seller-link">
-                            {{ $vendorName }}
-                        </span>
-                    </div>
 
-                </div>
-                    
-                    
-                    <form action="{{ route('carts.store') }}" method="POST" class="add-to-cart-form" id="addToCartForm">
+                    <form action="{{ route('carts.store') }}" method="POST" class="add-to-cart-form"
+                        id="addToCartForm">
                         @csrf
                         <input type="hidden" name="product_id" value="{{ $product->id }}">
                         <input type="hidden" id="product_id" value="{{ $product->id }}">
@@ -351,15 +356,17 @@
                         <button type="submit" class="btn btn-warning w-100 mb-2">
                             Add to Cart
                         </button>
-                       <button type="button" id="buyNowBtn" class="btn btn-orange w-100 mb-2"style="margin-top:6px;">
+                        <button type="button" id="buyNowBtn"
+                            class="btn btn-orange w-100 mb-2"style="margin-top:6px;">
                             Buy Now
                         </button>
-                       <button type="button" id="wishlistBtn" data-product="{{ $product->id }}" class="btn w-100"
+                        <button type="button" id="wishlistBtn" data-product="{{ $product->id }}"
+                            class="btn w-100"
                             style="border-radius:27px !important;background-color:white !important;color:black !important;margin-top:7px;border:2px solid black !important;padding:16px 24px !important">
                             Add to Wish List
                         </button>
                         <small style="margin-left: 5px;
-}">Check Delivery Availability  </small>
+}">Check Delivery Availability </small>
                         <!-- </form>
                     <hr>
                     
@@ -368,45 +375,36 @@
                         @csrf
                         <input type="hidden" name="vendor_id" value="{{ $product->vendor_id }}">
                         <div class="mb-2">
-                        <div class="delivery-card">
+                            <div class="delivery-card">
 
-        {{-- <h5 class="delivery-title">
+                                {{-- <h5 class="delivery-title">
             Delivery Details
         </h5> --}}
 
-        <div class="delivery-box">
+                                <div class="delivery-box">
 
-        <div class="delivery-left">
+                                    <div class="delivery-left">
 
-            <i class="fas fa-map-marker-alt location-icon"></i>
+                                        <i class="fas fa-map-marker-alt location-icon"></i>
 
-            <input
-                type="text"
-                id="deliveryPincode"
-                name="pincode"
-                 maxlength="6"
-       minlength="6"
-       pattern="[0-9]{6}"
-       inputmode="numeric"
-                placeholder="Pincode">
+                                        <input type="text" id="deliveryPincode" name="pincode" maxlength="6"
+                                            minlength="6" pattern="[0-9]{6}" inputmode="numeric"
+                                            placeholder="Pincode">
 
-        </div>
-        
-
-        <button
-            type="button"
-            id="checkDeliveryBtn"
-            class="delivery-btn">
-            APPLY
-        </button>
-
-    </div>
+                                    </div>
 
 
-        
+                                    <button type="button" id="checkDeliveryBtn" class="delivery-btn">
+                                        APPLY
+                                    </button>
 
-    </div>
-    <p id="deliveryMessage" style="margin-top:8px;font-size:13px;"></p>
+                                </div>
+
+
+
+
+                            </div>
+                            <p id="deliveryMessage" style="margin-top:8px;font-size:13px;"></p>
                     </form>
                 </div>
             </div>
@@ -451,6 +449,7 @@
             align-items: center;
             justify-content: center;
         }
+
         /* ICON */
         .bazaron-icon-circle i {
             font-size: 22px;
@@ -594,7 +593,8 @@
             font-size: 13px;
             color: #555;
             padding: 10px 0;
-            padding-left: 25px;   /* right side move */
+            padding-left: 25px;
+            /* right side move */
         }
 
         .bazaron-breadcrumb a {
@@ -684,75 +684,74 @@
             width: 180px;
             z-index: 999;
         }
-    .buy-box-column{
-        display:flex;
-        justify-content:flex-end;
-    }
 
-    .bazaron-buy-box{
-        width:300px;
-        max-width:320px;
-        border:1px solid #ddd;
-        border-radius:15px;
-        padding:20px;
-        background:#fff;
-    }
-    .delivery-card{
-        background:linear-gradient(180deg,#f57149,#f8f1ce);
-        border-radius:10px;
-        padding:5px;
-    }
+        .buy-box-column {
+            display: flex;
+            justify-content: flex-end;
+        }
 
-    .delivery-box{
-        height:40px;
-        border-radius:10px;
-        overflow:hidden;
-        background:#fff;
-        border:2px solid #d8d8d8;
-        display:flex;
-        align-items:center;
-    }
+        .bazaron-buy-box {
+            width: 300px;
+            max-width: 320px;
+            border: 1px solid #ddd;
+            border-radius: 15px;
+            padding: 20px;
+            background: #fff;
+        }
 
-    .delivery-left{
-        flex:1;
-        display:flex;
-        align-items:center;
-        padding:0 14px;
-    }
+        .delivery-card {
+            background: linear-gradient(180deg, #f57149, #f8f1ce);
+            border-radius: 10px;
+            padding: 5px;
+        }
 
-    .location-icon{
-        color:#ef4444;
-        font-size:11px;
-        margin-right:2px;
-    }
+        .delivery-box {
+            height: 40px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #fff;
+            border: 2px solid #d8d8d8;
+            display: flex;
+            align-items: center;
+        }
 
-    .delivery-left input{
-        border:none !important;
-        outline:none !important;
-        background:transparent;
-        width:100%;
-        font-size:15px;
-        color:#555;
-    }
+        .delivery-left {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
+        }
 
-    .delivery-left input::placeholder{
-        color:#666;
-    }
+        .location-icon {
+            color: #ef4444;
+            font-size: 11px;
+            margin-right: 2px;
+        }
 
-    .delivery-btn{
-        min-width:50px;
-        width:auto;
-        padding:0 2px;
-        height:100%;
-        border:none;
-        background:#22242d;
-        color:#fff;
-        font-size:14px;
-        font-weight:700;
-    }
+        .delivery-left input {
+            border: none !important;
+            outline: none !important;
+            background: transparent;
+            width: 100%;
+            font-size: 15px;
+            color: #555;
+        }
 
+        .delivery-left input::placeholder {
+            color: #666;
+        }
 
-
+        .delivery-btn {
+            min-width: 50px;
+            width: auto;
+            padding: 0 2px;
+            height: 100%;
+            border: none;
+            background: #22242d;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+        }
     </style>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -786,27 +785,25 @@
             document.querySelectorAll(".add-to-cart-form").forEach(function(cartForm) {
 
                 cartForm.addEventListener("submit", function(e) {
-            @php
-    $vendorProfile = \App\Models\VendorProfile::where(
-        'user_id',
-        $product->vendor_id
-    )->first();
-    @endphp
+                    @php
+                        $vendorProfile = \App\Models\VendorProfile::where('user_id', $product->vendor_id)->first();
+                    @endphp
 
-    let selfShipping = {{ ($vendorProfile && $vendorProfile->has_own_logistics) ? 1 : 0 }};
+                    let selfShipping =
+                        {{ $vendorProfile && $vendorProfile->has_own_logistics ? 1 : 0 }};
 
-    console.log("SELF SHIPPING =", selfShipping);
+                    console.log("SELF SHIPPING =", selfShipping);
 
-    if(selfShipping == 1 && !deliveryVerified){
+                    if (selfShipping == 1 && !deliveryVerified) {
 
-        e.preventDefault();
+                        e.preventDefault();
 
-        alert(
-            "Please check delivery availability first"
-        );
+                        alert(
+                            "Please check delivery availability first"
+                        );
 
-        return false;
-    }
+                        return false;
+                    }
 
                     e.preventDefault();
 
@@ -881,7 +878,7 @@
                                 }, 4000);
 
 
-                                // 👉 existing cart update code (same rehne de)
+                                // 👉 cart UI live update without page refresh
                                 let cartListing = document.querySelector(".cart-listing");
                                 if (cartListing) {
                                     cartListing.innerHTML = data.carts;
@@ -892,9 +889,30 @@
                                     navCart.innerHTML = data.navCarts;
                                 }
 
-                                let counter = document.querySelector(".cart-counter");
-                                if (counter) {
+                                document.querySelectorAll(".cart-counter").forEach(function(
+                                    counter) {
                                     counter.innerText = data.cartCount;
+                                    if (parseInt(data.cartCount) > 0) {
+                                        counter.classList.remove("d-none");
+                                    } else {
+                                        counter.classList.add("d-none");
+                                    }
+                                });
+
+                                document.querySelectorAll(".sub-total-price").forEach(function(
+                                    subtotal) {
+                                    subtotal.innerText = data.subTotal;
+                                });
+
+                                let couponDiscountRow = document.querySelector(
+                                    ".coupon-discount-wrapper");
+                                let couponDiscountPrice = document.querySelector(
+                                    ".coupon-discount-price");
+
+                                if (couponDiscountRow && couponDiscountPrice && data
+                                    .couponCode) {
+                                    couponDiscountRow.classList.remove("d-none");
+                                    couponDiscountPrice.innerText = data.couponDiscount;
                                 }
                             }
 
@@ -995,25 +1013,25 @@
                         keys.every(k => selected.includes(k.split(':')[1])) &&
                         v.stock > 0;
                 });
-if (found) {
+                if (found) {
 
-                let sellingPrice = parseFloat(found.price);
+                    let sellingPrice = parseFloat(found.price);
 
-                priceBox.innerText = "₹" + sellingPrice.toFixed(2);
+                    priceBox.innerText = "₹" + sellingPrice.toFixed(2);
 
-                let discount = Math.round(
-                    ((mrp - sellingPrice) / mrp) * 100
-                );
+                    let discount = Math.round(
+                        ((mrp - sellingPrice) / mrp) * 100
+                    );
 
-                if (discountBox) {
-                    discountBox.innerText = "-" + discount + "%";
+                    if (discountBox) {
+                        discountBox.innerText = "-" + discount + "%";
+                    }
+
+                    let input = document.querySelector('input[name="product_variation_id"]');
+                    if (input) {
+                        input.value = found.id || '';
+                    }
                 }
-
-                let input = document.querySelector('input[name="product_variation_id"]');
-                if (input) {
-                    input.value = found.id || '';
-                }
-            }
                 // if (found) {
                 //     priceBox.innerText = "₹" + parseFloat(found.price).toFixed(2);
 
@@ -1210,92 +1228,90 @@ if (found) {
             }
         });
 
-    
 
-    let deliveryVerified = false;
 
-    document.addEventListener("DOMContentLoaded", function () {
+        let deliveryVerified = false;
 
-        let btn = document.getElementById("checkDeliveryBtn");
+        document.addEventListener("DOMContentLoaded", function() {
 
-        if(btn){
+            let btn = document.getElementById("checkDeliveryBtn");
 
-            btn.addEventListener("click", function(){
+            if (btn) {
 
-                let pincode = document.getElementById("deliveryPincode").value;
-                let msg = document.getElementById("deliveryMessage");
+                btn.addEventListener("click", function() {
 
-    // purana message hata do
-    msg.innerHTML = "";
-                let productId = document.getElementById("product_id").value;
+                    let pincode = document.getElementById("deliveryPincode").value;
+                    let msg = document.getElementById("deliveryMessage");
 
-           if (pincode.length !== 6) {
+                    // purana message hata do
+                    msg.innerHTML = "";
+                    let productId = document.getElementById("product_id").value;
 
-    document.getElementById("deliveryMessage").innerHTML =
-        '<span style="color:red;font-weight:600;">Please enter a valid 6-digit pincode</span>';
+                    if (pincode.length !== 6) {
 
-    return;
-}
+                        document.getElementById("deliveryMessage").innerHTML =
+                            '<span style="color:red;font-weight:600;">Please enter a valid 6-digit pincode</span>';
 
-                fetch("{{ route('check.delivery') }}", {
+                        return;
+                    }
 
-                    method: "POST",
+                    fetch("{{ route('check.delivery') }}", {
 
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": document.querySelector(
-                            'meta[name="csrf-token"]'
-                        ).content
-                    },
+                            method: "POST",
 
-                    body: JSON.stringify({
-                        product_id: productId,
-                        pincode: pincode
-                    })
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": document.querySelector(
+                                    'meta[name="csrf-token"]'
+                                ).content
+                            },
 
-                })
-                .then(res => res.json())
-            .then(data => {
+                            body: JSON.stringify({
+                                product_id: productId,
+                                pincode: pincode
+                            })
 
-        let msg = document.getElementById("deliveryMessage");
+                        })
+                        .then(res => res.json())
+                        .then(data => {
 
-        if(data.success){
+                            let msg = document.getElementById("deliveryMessage");
 
-            deliveryVerified = true;
+                            if (data.success) {
 
-            msg.innerHTML =
-                '<span style="color:green;font-weight:600;">Delivery Available</span>';
+                                deliveryVerified = true;
 
-        }else{
+                                msg.innerHTML =
+                                    '<span style="color:green;font-weight:600;">Delivery Available</span>';
+
+                            } else {
+
+                                deliveryVerified = false;
+
+                                msg.innerHTML =
+                                    '<span style="color:red;font-weight:600;">Delivery Not Available</span>';
+                            }
+
+                        });
+
+                });
+
+            }
+
+        });
+
+
+
+
+        document.getElementById("deliveryPincode").addEventListener("input", function() {
+
+            // sirf numbers allow karo
+            this.value = this.value.replace(/\D/g, '').slice(0, 6);
 
             deliveryVerified = false;
 
-            msg.innerHTML =
-                '<span style="color:red;font-weight:600;">Delivery Not Available</span>';
-        }
+            document.getElementById("deliveryMessage").innerHTML =
+                '<span style="color:#666;">Checking...</span>';
 
-    });
-
-            });
-
-        }
-
-    });
-
-
-
-
- document.getElementById("deliveryPincode").addEventListener("input", function () {
-
-    // sirf numbers allow karo
-    this.value = this.value.replace(/\D/g, '').slice(0, 6);
-
-    deliveryVerified = false;
-
-    document.getElementById("deliveryMessage").innerHTML =
-        '<span style="color:#666;">Checking...</span>';
-
-});
-
-
+        });
     </script>

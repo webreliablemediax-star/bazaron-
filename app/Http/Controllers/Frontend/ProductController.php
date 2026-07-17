@@ -123,6 +123,7 @@ if ($request->brand_id) {
 $clickedCategory = null;
 $activeCategory = null;
 $activeSubCategories = collect();
+$sidebarCategories = collect();
 if ($request->category_id) {
 $clickedCategory = Category::with('childrenCategories')->find($request->category_id);
 if ($clickedCategory) {
@@ -190,6 +191,7 @@ if ($childCategories->count() > 0) {
 
     // 👉 ALWAYS show next level categories
     $activeSubCategories = $childCategories;
+    $sidebarCategories = $childCategories;
 
     // 👉 hide products
     $products = Product::whereRaw('1 = 0');
@@ -252,6 +254,7 @@ return getView('pages.products.index', compact(
 'currentNavbarCategory',
 'activeCategory',
 'activeSubCategories',
+'sidebarCategories',
 'max_range',
 'breadcrumbCategories',
 'megaMenuColumns'
@@ -274,6 +277,7 @@ $subcategories = Category::withoutGlobalScopes()
 ->where('is_active', 1)
 ->orderBy('sorting_order_level', 'asc')
 ->get();
+$sidebarCategories = $subcategories;
 // 🔥 SIDEBAR DATA (Products Page jaisa)
 $parentCategories = Category::with('childrenRecursive')
 ->where('parent_id', 0)
@@ -354,6 +358,7 @@ return getView('pages.category.landing', compact(
 'tags',
 'currentNavbarCategory',
 'activeSubCategories',
+'sidebarCategories',
 'megaMenuColumns'
 ));
 }

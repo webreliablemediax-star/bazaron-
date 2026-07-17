@@ -79,9 +79,16 @@
 
         <div class="mt-4">
 
-            @if (isset($activeSubCategories) && $activeSubCategories->count())
+            @php
+                $categoryLinks = $sidebarCategories
+                    ?? $subcategories
+                    ?? $activeSubCategories
+                    ?? collect();
+            @endphp
 
-                @foreach ($activeSubCategories as $subCat)
+            @if ($categoryLinks->count())
+
+                @foreach ($categoryLinks as $subCat)
                     <div class="mb-2">
 
                         <a href="{{ route('category.landing', [

@@ -210,17 +210,28 @@
                             navCart.innerHTML = data.navCarts;
                         }
 
-                        // cart counter update
-                        let counter = document.querySelector(".cart-counter");
-                        if (counter) {
+                        // cart counter update  
+                        document.querySelectorAll(".cart-counter").forEach(function(counter) {
                             counter.innerText = data.cartCount;
-                            counter.classList.remove("d-none");
-                        }
+                            if (parseInt(data.cartCount) > 0) {
+                                counter.classList.remove("d-none");
+                            } else {
+                                counter.classList.add("d-none");
+                            }
+                        });
 
                         // subtotal update
                         document.querySelectorAll(".sub-total-price").forEach(function (subtotal) {
                             subtotal.innerText = data.subTotal;
                         });
+
+                        let couponDiscountRow = document.querySelector(".coupon-discount-wrapper");
+                        let couponDiscountPrice = document.querySelector(".coupon-discount-price");
+
+                        if (couponDiscountRow && couponDiscountPrice && data.couponCode) {
+                            couponDiscountRow.classList.remove("d-none");
+                            couponDiscountPrice.innerText = data.couponDiscount;
+                        }
 
                     }
 

@@ -97,6 +97,20 @@
                                                             <option value="fa-store"
                                                                 {{ $feature->icon == 'fa-store' ? 'selected' : '' }}>Marketplace
                                                             </option>
+                                                            <option value="fa-headset"
+    {{ $feature->icon == 'fa-headset' ? 'selected' : '' }}>
+    Marketing Support
+</option>
+
+<option value="fa-user-headset"
+    {{ $feature->icon == 'fa-user-headset' ? 'selected' : '' }}>
+    Dedicated Seller Support
+</option>
+
+<option value="fa-cloud-arrow-up"
+    {{ $feature->icon == 'fa-cloud-arrow-up' ? 'selected' : '' }}>
+    Product Upload
+</option>
                                                         </select>
                                                     </div>
                                                     <div class="col-md-3">

@@ -996,9 +996,16 @@ section.gshop-hero {
     font-size: 17px;
     font-weight: 600;
     text-align: center;
-    white-space: nowrap;
+    line-height: 1.2;
+    height: 42px;
+    margin: 8px 10px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: normal;
     overflow: hidden;
-    text-overflow: ellipsis;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .featured-products-section {
@@ -3005,6 +3012,7 @@ footer .container {
         font-size: 17px !important;
         font-weight: 400 !important;
         line-height: 1.2;
+        height: 42px;
     }
 
 }
