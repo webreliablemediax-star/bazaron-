@@ -5,12 +5,22 @@
 @endsection
 
 @section('contents')
-    <div class="card">
-        <div class="card-header">
-            <h4 class="mb-0">Sellers List</h4>
+   <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-header bg-white border-0 py-3 px-4">
+          <div class="d-flex justify-content-between align-items-center">
+    <div>
+        <h4 class="fw-bold mb-0">Sellers List</h4>
+        <small class="text-muted">Manage all registered sellers</small>
+    </div>
+
+    <span class="badge rounded-pill px-3 py-2"
+      style="background:#dcfce7;color:#15803d;font-size:14px;">
+    {{ $vendors->total() }} Sellers
+</span>
+</div>
         </div>
-        <div class="card-body">
-            <table class="table table-bordered table-striped">
+       <div class="table-responsive px-3 pb-3">
+    <table class="table table-hover align-middle mb-0 vendor-table">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -29,48 +39,81 @@
                     @forelse($vendors as $vendor)
                         <tr>
                             <td>{{ $vendor->id }}</td>
-                            <td>{{ $vendor->name }}</td>
-                            <td>{{ $vendor->email }}</td>
-                            <td>
-                                {{ $vendor->vendorProfile->business_name ?? '-' }}
-                            </td>
+                           <td>
+    <div class="d-flex align-items-center">
+
+
+       <div>
+            <div class="fw-bold">{{ $vendor->name }}</div>
+            <small class="text-muted">
+                Seller #{{ $vendor->id }}
+            </small>
+        </div>
+
+    </div>
+</td>
+                          <td>
+    <div class="fw-semibold">
+        {{ $vendor->email }}
+    </div>
+</td>
+                          <td>
+    <div class="fw-semibold">
+        {{ $vendor->vendorProfile->business_name ?? '-' }}
+    </div>
+</td>
 
                             <td>
-                                @if (optional($vendor->vendorProfile)->has_own_logistics)
-                                    <span class="badge bg-success">Self Shipping</span>
-                                @else
-                                    <span class="badge bg-dark">Bazaron Shipping</span>
-                                @endif
+                              @if (optional($vendor->vendorProfile)->has_own_logistics)
+    <span class="badge rounded-pill px-3 py-2"
+          style="background:#dcfce7;color:#15803d;border:1px solid #86efac;">
+        <i class="bi bi-truck"></i> Self Shipping
+    </span>
+@else
+    <span class="badge rounded-pill px-3 py-2"
+          style="background:#fff7ed;color:#ea580c;border:1px solid #fdba74;">
+        <i class="bi bi-box-seam"></i> Bazaron Shipping
+    </span>
+@endif
                             </td>
                             
-                            <td>
-                                <span
-                                    class="badge btn-sm
-                                    @if ($vendor->status == 'approved') bg-success
-                                    @elseif($vendor->status == 'rejected')
-                                        bg-danger
-                                    @else
-                                        bg-warning text-dark @endif
-                                ">
-                                    {{ ucfirst($vendor->status) }}
-                                </span>
-                            </td>
-                            <td>
-    <label class="switch">
-        <input type="checkbox"
+                           <td>
+    @if($vendor->status == 'approved')
+        <span class="badge rounded-pill bg-success px-3 py-2">
+            <i class="bi bi-check-circle-fill"></i> Approved
+        </span>
+
+    @elseif($vendor->status == 'rejected')
+
+        <span class="badge rounded-pill bg-danger px-3 py-2">
+            <i class="bi bi-x-circle-fill"></i> Rejected
+        </span>
+
+    @else
+
+        <span class="badge rounded-pill bg-warning text-dark px-3 py-2">
+            <i class="bi bi-clock-fill"></i> Pending
+        </span>
+
+    @endif
+</td>
+                           <td class="text-center">
+    <div class="form-check form-switch d-flex justify-content-center">
+        <input class="form-check-input"
+               type="checkbox"
                value="{{ $vendor->id }}"
                onchange="updateVendorStatus(this)"
                {{ $vendor->is_active ? 'checked' : '' }}>
-        <span class="slider round"></span>
-    </label>
+    </div>
 </td>
        
                             <td>
-                                <a href="{{ route('admin.vendors.show', $vendor->id) }}"
-                                    class="btn btn-sm btn-primary">View</a>
+                              <a href="{{ route('admin.vendors.show',$vendor->id) }}"
+   class="btn btn-sm btn-outline-success rounded-pill px-4">
+    <i class="bi bi-eye me-1"></i> View
+</a>
 
-
-                                </a>
+                               
                             </td>
 
                         </tr>

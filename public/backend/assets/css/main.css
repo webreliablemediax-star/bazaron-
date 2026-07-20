@@ -9779,9 +9779,7 @@ fieldset:disabled .btn {
 .fw-medium {
     font-weight: 500 !important;
 }
-.fw-semibold {
-    font-weight: 600 !important;
-}
+
 .fw-bolder {
     font-weight: bolder !important;
 }
@@ -9884,7 +9882,7 @@ fieldset:disabled .btn {
 }
 .text-muted {
     --bs-text-opacity: 1;
-    color: #919eab !important;
+    color: #fff !important;
 }
 .text-black-50 {
     --bs-text-opacity: 1;
@@ -33259,9 +33257,7 @@ button:focus {
 body {
     font-family: "Inter", Helvetica;
 }
-.fw-semibold {
-    font-weight: 600;
-}
+
 .fw-medium {
     font-weight: 500;
 }
