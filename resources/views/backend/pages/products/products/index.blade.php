@@ -96,19 +96,20 @@
                                     <th class="text-center">{{ localize('S/L') }}
                                     </th>
                                     <th data-breakpoints="xs sm">{{ localize('PC') }}</th>
-                                    <th>{{ localize('Product Name') }}</th>
+                                    <th style="width: 280px; min-width: 280px;">{{ localize('Product Name') }}</th>
                                     @if (auth()->user()->user_type == 'admin')
                                         <th data-breakpoints="xs sm">{{ localize('Vendor') }}</th>
                                     @endif
                                     <th data-breakpoints="xs sm">{{ localize('Brand') }}</th>
-                                    <th data-breakpoints="xs sm">{{ localize('Categories') }}</th>
+                                    @if(auth()->user()->user_type == 'admin')
+    <th data-breakpoints="xs sm">{{ localize('Logistics') }}</th>
+@endif
                                     <th data-breakpoints="xs sm">{{ localize('Price') }}</th>
                                     <th data-breakpoints="xs sm md" class="text-center">{{ localize('MSP') }}
                                     </th>
                                     <th data-breakpoints="xs sm md" class="text-center">{{ localize('MRP') }}
                                     </th>
                                     <th data-breakpoints="xs sm md">{{ localize('Published') }}</th>
-                                    <th data-breakpoints="xs sm" class="text-nowrap">{{ localize('Comm (%)') }}</th>
                                     <th data-breakpoints="xs sm md" class="text-end">{{ localize('Action') }}</th>
                                 </tr>
                             </thead>
@@ -122,16 +123,58 @@
                                             </small>
                                         </td>
 
-                                        <td>
+                                        <td style="width: 280px; min-width: 280px;">
                                             <a href="{{ route('products.show', $product->slug) }}"
-                                                class="d-flex align-items-center" target="_blank">
-                                                <div class="avatar avatar-sm">
+                                                class="d-flex align-items-start" target="_blank">
+                                                <div class="avatar avatar-sm flex-shrink-0 mt-1">
                                                     <img loading="lazy" class="rounded-circle"
                                                         src="{{ uploadedAsset($product->thumbnail_image) }}" alt=""
                                                         onerror="this.onerror=null;this.src='{{ staticAsset('backend/assets/img/placeholder-thumb.png') }}';" />
                                                 </div>
-                                                <h6 class="fs-sm mb-0 ms-2">{{ $product->collectLocalization('name') }}
-                                                </h6>
+                                                <div class="ms-2" style="min-width: 0;">
+                                                    <h6 class="fs-sm mb-0 lh-sm"
+    data-bs-toggle="tooltip"
+    data-bs-placement="top"
+    data-bs-title="{{ $product->collectLocalization('name') }}"
+    style="display:-webkit-box;
+           -webkit-line-clamp:2;
+           -webkit-box-orient:vertical;
+           overflow:hidden;">
+    {{ $product->collectLocalization('name') }}
+</h6>
+
+                                                    @foreach ($product->categories as $category)
+                                                        @php
+                                                            $breadcrumbs = [];
+                                                            $parent = $category->parentCategory;
+                                                            $visitedIds = [];
+                                                            $depth = 0;
+
+                                                            while ($parent && $depth < 20 && !in_array($parent->id, $visitedIds)) {
+                                                                $visitedIds[] = $parent->id;
+                                                                $parentName = $parent->collectLocalization('name');
+
+                                                                if (!empty($parentName)) {
+                                                                    array_unshift($breadcrumbs, $parentName);
+                                                                }
+
+                                                                $parent = $parent->parentCategory;
+                                                                $depth++;
+                                                            }
+
+                                                            $categoryName = $category->collectLocalization('name');
+                                                            if (!empty($categoryName)) {
+                                                                $breadcrumbs[] = $categoryName;
+                                                            }
+                                                        @endphp
+
+                                                        @if (!empty($breadcrumbs))
+                                                            <small class="text-muted fw-bold d-block mt-1 lh-sm">
+                                                                {{ implode(' > ', $breadcrumbs) }}
+                                                            </small>
+                                                        @endif
+                                                    @endforeach
+                                                </div>
                                             </a>
                                         </td>
                                         @if (auth()->user()->user_type == 'admin')
@@ -150,15 +193,32 @@
                                             <span
                                                 class="fs-sm">{{ optional($product->brand)->collectLocalization('name') }}</span>
                                         </td>
-                                        <td>
-                                            @forelse ($product->categories as $category)
-                                                <span
-                                                    class="badge rounded-pill bg-secondary">{{ $category->collectLocalization('name') }}</span>
+                                        @if(auth()->user()->user_type == 'admin')
+    <td>
+        @php
+            $vendorProfile = $product->vendorProfile;
+            $shippingSetting = $vendorProfile?->shippingSetting;
 
-                                            @empty
-                                                <span class="badge rounded-pill bg-secondary">{{ localize('N/A') }}</span>
-                                            @endforelse
-                                        </td>
+            if ($shippingSetting?->self_ship_only) {
+                $shippingType = localize('Self Shipping');
+                $shippingClass = 'bg-primary';
+            } elseif ($shippingSetting?->bazaron_only || $shippingSetting?->bazaron_enabled) {
+                $shippingType = localize('Bazaron Shipping');
+                $shippingClass = 'bg-success';
+            } elseif ($vendorProfile?->has_own_logistics) {
+                $shippingType = localize('Self Shipping');
+                $shippingClass = 'bg-success';
+            } else {
+                $shippingType = localize('Bazaron Shipping');
+                $shippingClass = 'bg-warning text-dark';
+            }
+        @endphp
+
+        <span class="badge rounded-pill {{ $shippingClass }}">
+            {{ $shippingType }}
+        </span>
+    </td>
+@endif
                                         <td>
                                             <div class="tt-tb-price fs-sm fw-bold">
                                                 <span class="text-accent">
@@ -196,21 +256,6 @@
                                                 </div>
                                             @endcan
 
-                                        </td>
-                                        <td>
-                                            @php
-                                                $category = \App\Models\Category::find($product->category_id);
-                                            @endphp
-
-                                            @if ($category && $category->commission_percentage)
-                                                <span class="badge bg-success">
-                                                    {{ $category->commission_percentage }}%
-                                                </span>
-                                            @else
-                                                <span class="badge bg-secondary">
-                                                    N/A
-                                                </span>
-                                            @endif
                                         </td>
                                         <td class="text-end">
                                             <div class="dropdown tt-tb-dropdown">
@@ -348,5 +393,13 @@
                     }
                 });
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+});
     </script>
 @endsection

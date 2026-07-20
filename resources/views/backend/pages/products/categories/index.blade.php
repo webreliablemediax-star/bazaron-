@@ -61,7 +61,7 @@
                                     </th>
                                     <th data-breakpoints="xs sm">{{ localize('Category Code') }}</th>
                                     <th>{{ localize('Category Name') }}</th>
-                                    <th data-breakpoints="xs sm">{{ localize('Base Category') }}</th>
+                                    <!--<th data-breakpoints="xs sm">{{ localize('Base Category') }}</th>-->
                                     
                                     <th data-breakpoints="xs sm">{{ localize('Brands') }}</th>
                                     <th data-breakpoints="xs sm">{{ localize('Priority') }}</th>
@@ -81,25 +81,78 @@
                                             {{ $category->category_code }}
                                         </td>
                                         <td>
+                                            @php
+                                                $breadcrumbs = [];
+                                                $parent = $category->parentCategory ?? null;
+
+                                                // Circular relation detect karne ke liye
+                                                $visitedIds = [];
+
+                                                // Extra safety: maximum 20 levels
+                                                $maxDepth = 20;
+                                                $depth = 0;
+
+                                                while ($parent && $depth < $maxDepth) {
+                                                    // Agar same category dobara aa gayi to loop stop
+                                                    if (in_array($parent->id, $visitedIds)) {
+                                                        break;
+                                                    }
+
+                                                    $visitedIds[] = $parent->id;
+
+                                                    $parentName = $parent->collectLocalization('name');
+
+                                                    if (!empty($parentName)) {
+                                                        array_unshift($breadcrumbs, $parentName);
+                                                    }
+
+                                                    $parent = $parent->parentCategory ?? null;
+
+                                                    $depth++;
+                                                }
+
+                                                // Current category name
+                                                $currentCategoryName = $category->collectLocalization('name');
+
+                                                if (!empty($currentCategoryName)) {
+                                                    $breadcrumbs[] = $currentCategoryName;
+                                                }
+                                            @endphp
+
                                             <a href="javascript:void(0);" class="d-flex align-items-center">
-                                                <div class="avatar avatar-sm">
+
+                                                <div class="avatar avatar-sm flex-shrink-0">
                                                     <img class="rounded-circle"
                                                         src="{{ uploadedAsset($category->collectLocalization('thumbnail_image')) }}"
-                                                        alt="" />
+                                                        alt="{{ $currentCategoryName ?? 'Category' }}" />
                                                 </div>
-                                                <h6 class="fs-sm mb-0 ms-2">{{ $category->collectLocalization('name') }}
-                                                </h6>
+
+                                                <div class="ms-2">
+
+                                                    <h6 class="fs-sm mb-1">
+                                                        {{ $currentCategoryName ?? '-' }}
+                                                    </h6>
+
+                                                    @if (count($breadcrumbs) > 1)
+                                                        <small class="text-muted d-block">
+                                                            {{ implode(' > ', $breadcrumbs) }}
+                                                        </small>
+                                                    @endif
+
+                                                </div>
+
                                             </a>
                                         </td>
-                                        <td>
-                                            @if ($category->parentCategory)
-                                                {{ $category->parentCategory->collectLocalization('name') }}
-                                            @else
-                                                <span class="badge rounded-pill bg-secondary">
-                                                    {{ localize('N/A') }}
-                                                </span>
-                                            @endif
-                                        </td>
+                                        
+                                        <!--<td>-->
+                                        <!--    @if ($category->parentCategory)-->
+                                        <!--        {{ $category->parentCategory->collectLocalization('name') }}-->
+                                        <!--    @else-->
+                                        <!--        <span class="badge rounded-pill bg-secondary">-->
+                                        <!--            {{ localize('N/A') }}-->
+                                        <!--        </span>-->
+                                        <!--    @endif-->
+                                        <!--</td>-->
                                        
                                         <td>
                                             @forelse ($category->brands as $brand)

@@ -51,7 +51,7 @@ class ProductsController extends Controller
         $searchKey = null;
         $brand_id = null;
         $is_published = null;
-        $products = Product::shop()->latest();
+        $products = Product::shop()->with('vendorProfile.shippingSetting')->latest();
        if ($request->search != null) {
 
     $products = $products->where(function ($q) use ($request) {
@@ -806,6 +806,10 @@ foreach ($variations as $variation) {
             return redirect()->back();
         }
          $product = Product::with('variation_combinations')->findOrFail($id);
+        // The admin publish toggle updates is_published only, so this is the
+        // reliable indicator that the seller product has already been approved.
+        $wasPublished = (int) $product->is_published === 1;
+        $isVendor = $user->user_type === 'vendor' || $user->hasRole('vendor');
         $allowedQty = max(
     10,
     $product->admin_max_purchase_qty
@@ -1050,7 +1054,11 @@ $product->express_delivery_hours =
                 }
                 $product->icon_slider = $icons;
             }
-            if ($user->user_type === 'vendor') {
+            // Preserve the published state of an already approved seller product on edit.
+            if ($isVendor && $wasPublished) {
+                $product->status = 'approved';
+                $product->is_published = 1;
+            } elseif ($isVendor) {
                 $product->status = 'pending';
                 $product->is_published = 0;
             } else {

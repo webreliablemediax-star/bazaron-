@@ -75,70 +75,40 @@
 
                                 @if (env('DEFAULT_LANGUAGE') == $lang_key)
                                     <div class="mb-4">
-                                        <label for="parent_id" class="form-label">{{ localize('Base Category') }}</label>
-                                         @php
-                                            function renderEditCategoryOptions(
-                                                $category,
-                                                $currentParentId,
-                                                $currentCategoryId,
-                                                $prefix = '',
-                                            ) {
-                                                if ($category->id != $currentCategoryId) {
-                                                    $selected = $category->id == $currentParentId ? 'selected' : '';
 
-                                                    echo '<option value="' .
-                                                        $category->id .
-                                                        '" ' .
-                                                        $selected .
-                                                        '>' .
-                                                        $prefix .
-                                                        $category->collectLocalization('name') .
-                                                        '</option>';
+                                        <label for="parent_id" class="form-label">
+                                            {{ localize('Base Category') }}
+                                        </label>
 
-                                                    foreach (
-                                                        $category
-                                                            ->childrenCategories()
-                                                            ->orderBy('sorting_order_level', 'desc')
-                                                            ->get()
-                                                        as $child
-                                                    ) {
-                                                        renderEditCategoryOptions(
-                                                            $child,
-                                                            $currentParentId,
-                                                            $currentCategoryId,
-                                                            $prefix . $category->collectLocalization('name') . ' > ',
-                                                        );
-                                                    }
-                                                }
-                                            }
-                                        @endphp
+                                        <select class="form-control" name="parent_id" id="parent_id" style="width: 100%;">
 
-                                        <select class="form-control select2 w-100" name="parent_id" data-toggle="select2">
-
-                                            <option value="0" {{ $category->parent_id == 0 ? 'selected' : '' }}>
-                                                -
+                                            <option value="0" {{ $selectedParent ? '' : 'selected' }}>
+                                                Root Category
                                             </option>
 
-                                            @foreach ($categories as $acategory)
-                                                @php
-                                                    renderEditCategoryOptions(
-                                                        $acategory,
-                                                        $category->parent_id,
-                                                        $category->id,
-                                                    );
-                                                @endphp
-                                            @endforeach
+                                            @if ($selectedParent)
+                                                <option value="{{ $selectedParent['id'] }}" selected>
+                                                    {{ $selectedParent['text'] }}
+                                                </option>
+                                            @endif
 
                                         </select>
-                                        </select>
 
-<div class="mt-2">
-    <small class="text-muted" id="categoryBreadcrumb">
-        No category selected
-    </small>
-</div>
+                                        <div class="mt-2">
+
+                                            <small class="text-muted" id="categoryBreadcrumb">
+
+                                                @if ($selectedParent)
+                                                    {{ $selectedParent['text'] }}
+                                                @else
+                                                    Root Category
+                                                @endif
+
+                                            </small>
+
+                                        </div>
+
                                     </div>
-
                                     <div class="mb-4">
 
                                         @php
@@ -346,6 +316,79 @@
 
 
 @section('scripts')
+
+<script>
+        "use strict";
+
+        $(document).ready(function() {
+
+            $('#parent_id').select2({
+
+                placeholder: 'Search Base Category',
+
+                allowClear: true,
+
+                minimumInputLength: 1,
+
+                ajax: {
+
+                    url: "{{ route('admin.categories.search') }}",
+
+                    dataType: 'json',
+
+                    delay: 300,
+
+                    data: function(params) {
+
+                        return {
+                            q: params.term
+                        };
+
+                    },
+
+                    processResults: function(data) {
+
+                        return {
+                            results: [{
+                                id: '0',
+                                text: 'Root Category'
+                            }].concat(data.results || [])
+                        };
+
+                    },
+
+                    cache: true
+
+                }
+
+            });
+
+
+            $('#parent_id').on(
+                'select2:select',
+                function(e) {
+
+                    $('#categoryBreadcrumb')
+                        .text(e.params.data.text);
+
+                }
+            );
+
+
+            $('#parent_id').on(
+                'select2:clear',
+                function() {
+
+                    $('#categoryBreadcrumb')
+                        .text('No category selected');
+
+                }
+            );
+
+        });
+    </script>
+
+
     <script>
         "use strict";
 
@@ -383,26 +426,6 @@ $(document).ready(function () {
 });
 
 
-const categories = @json($categories);
-
-function findCategoryPath(id, list, path = []) {
-    for (let cat of list) {
-
-        // match id
-        if (cat.id == id) {
-            return [...path, cat.name];
-        }
-
-        // 🔥 handle both cases
-        let children = cat.childrenCategories || cat.children_categories;
-
-        if (children && children.length > 0) {
-            let result = findCategoryPath(id, children, [...path, cat.name]);
-            if (result) return result;
-        }
-    }
-    return null;
-}
 
 $(document).ready(function () {
 

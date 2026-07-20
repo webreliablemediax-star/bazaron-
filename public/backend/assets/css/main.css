@@ -9782,9 +9782,6 @@ fieldset:disabled .btn {
 .fw-semibold {
     font-weight: 600 !important;
 }
-.fw-bold {
-    font-weight: 700 !important;
-}
 .fw-bolder {
     font-weight: bolder !important;
 }
@@ -9843,7 +9840,7 @@ fieldset:disabled .btn {
 }
 .text-accent {
     --bs-text-opacity: 1;
-    color: rgba(var(--bs-accent-rgb), var(--bs-text-opacity)) !important;
+      color: rgb(22 22 22) !important;
 }
 .text-secondary {
     --bs-text-opacity: 1;

@@ -29,60 +29,151 @@ class CategoriesController extends Controller
         $searchKey = null;
         $categories = Category::orderBy('sorting_order_level', 'desc');
         if ($request->search != null) {
-            $categories = $categories->where('name', 'like', '%' . $request->search . '%');
+        $categories = $categories->where(function ($query) use ($request) {
+            $query->where('name', 'like', '%' . $request->search . '%')
+                ->orWhere('category_code', 'like', '%' . $request->search . '%');
+        });
             $searchKey = $request->search;
         }
-
         $categories = $categories->paginate(paginationNumber());
         return view('backend.pages.products.categories.index', compact('categories', 'searchKey'));
     }
-
-    # return view of create form
+    
     public function create()
 {
-    // 🔥 Load FULL category tree (Level 0 → Level 3 is enough)
-    $categories = Category::where(function ($q) {
-            $q->where('parent_id', 0)
-              ->orWhereNull('parent_id');
-        })
-        ->where('is_active', 1)
-        ->with([
-            'childrenCategories.childrenCategories.childrenCategories'
-        ])
-        ->orderBy('sorting_order_level', 'desc')
-        ->get()
-        ->map(function ($cat) {
+    $brands = Brand::isActive()
+        ->select('id', 'name')
+        ->get();
 
-        $cat->name = $cat->collectLocalization('name');
+    return view(
+        'backend.pages.products.categories.create',
+        compact('brands')
+    );
+}
+public function searchCategories(Request $request)
+{
+    $search = trim($request->q);
 
-        if ($cat->childrenCategories) {
-            $cat->childrenCategories->map(function ($child) {
+    $allCategories = Category::where('is_active', 1)
+        ->select('id', 'name', 'parent_id')
+        ->get();
 
-                $child->name = $child->collectLocalization('name');
+    $categories = $allCategories->keyBy('id');
 
-                if ($child->childrenCategories) {
-                    $child->childrenCategories->map(function ($sub) {
+    $results = [];
 
-                        $sub->name = $sub->collectLocalization('name');
+    foreach ($allCategories as $category) {
 
-                        return $sub;
-                    });
-                }
+        $path = [];
+        $current = $category;
+        $visited = [];
 
-                return $child;
-            });
+        while ($current) {
+
+            if (isset($visited[$current->id])) {
+                break;
+            }
+
+            $visited[$current->id] = true;
+
+            array_unshift($path, $current->name);
+
+            if (!$current->parent_id) {
+                break;
+            }
+
+            $current = $categories[$current->parent_id] ?? null;
         }
 
-        return $cat;
+        $breadcrumb = implode(' > ', $path);
+
+
+
+$matched = true;
+
+if ($search != '') {
+
+    $keywords = preg_split('/\s+/', strtolower(trim($search)));
+
+    $breadcrumbLower = strtolower($breadcrumb);
+
+    foreach ($keywords as $keyword) {
+
+        if ($keyword == '') {
+            continue;
+        }
+
+        if (strpos($breadcrumbLower, $keyword) === false) {
+            $matched = false;
+            break;
+        }
+    }
+}
+
+if ($matched) {
+
+    $results[] = [
+        'id'   => $category->id,
+        'text' => $breadcrumb,
+    ];
+}
+    }
+
+    usort($results, function ($a, $b) {
+        return strcmp($a['text'], $b['text']);
     });
+
+    return response()->json([
+        'results' => array_slice($results, 0, 50)
+    ]);
+}
+
+    # return view of create form
+//     public function create()
+// {
+//     // 🔥 Load FULL category tree (Level 0 → Level 3 is enough)
+//     $categories = Category::where(function ($q) {
+//             $q->where('parent_id', 0)
+//               ->orWhereNull('parent_id');
+//         })
+//         ->where('is_active', 1)
+//         ->with([
+//             'childrenCategories.childrenCategories.childrenCategories'
+//         ])
+//         ->orderBy('sorting_order_level', 'desc')
+//         ->get()
+//         ->map(function ($cat) {
+
+//         $cat->name = $cat->collectLocalization('name');
+
+//         if ($cat->childrenCategories) {
+//             $cat->childrenCategories->map(function ($child) {
+
+//                 $child->name = $child->collectLocalization('name');
+
+//                 if ($child->childrenCategories) {
+//                     $child->childrenCategories->map(function ($sub) {
+
+//                         $sub->name = $sub->collectLocalization('name');
+
+//                         return $sub;
+//                     });
+//                 }
+
+//                 return $child;
+//             });
+//         }
+
+//         return $cat;
+//     });
 
   
      
-    $brands = Brand::isActive()->get();
+//     $brands = Brand::isActive()->get();
     
 
-    return view('backend.pages.products.categories.create', compact('categories', 'brands'));
-}
+//     return view('backend.pages.products.categories.create', compact('categories', 'brands'));
+// }
 
     # add new data
     public function store(Request $request)
@@ -175,67 +266,112 @@ $category->description = $request->description;
 
         $category->save();
         $categoryLocalization->save();
-
+        cache()->forget('admin_category_search_options');
         flash(localize('Category has been inserted successfully'))->success();
         return redirect()->route('admin.categories.index');
     }
 
     # return view of edit form
     public function edit(Request $request, $id)
-    {
-        $lang_key = $request->lang_key;
-        $language = Language::where('is_active', 1)->where('code', $lang_key)->first();
-        if (!$language) {
-            flash(localize('Language you are trying to translate is not available or not active'))->error();
-            return redirect()->route('admin.categories.index');
-        }
+{
+    $lang_key = $request->lang_key;
 
-        $category = Category::findOrFail($id);
-        $categories = Category::where(function ($q) {
-        $q->where('parent_id', 0)
-          ->orWhereNull('parent_id');
-    })
-    ->where('id', '!=', $category->id)
-    ->where('is_active', 1)
-    ->with([
-        'childrenCategories.childrenCategories.childrenCategories'
-    ])
-    ->whereNotIn('id', $this->childrenIds($category->id, true))
-    ->orderBy('sorting_order_level', 'desc')
-    ->get()
-     ->map(function ($cat) {
+    $language = Language::where('is_active', 1)
+        ->where('code', $lang_key)
+        ->first();
 
-        $cat->name = $cat->collectLocalization('name');
+    if (!$language) {
+        flash(
+            localize('Language you are trying to translate is not available or not active')
+        )->error();
 
-        if ($cat->childrenCategories) {
-            $cat->childrenCategories->map(function ($child) {
-
-                $child->name = $child->collectLocalization('name');
-
-                if ($child->childrenCategories) {
-                    $child->childrenCategories->map(function ($sub) {
-
-                        $sub->name = $sub->collectLocalization('name');
-
-                        return $sub;
-                    });
-                }
-
-                return $child;
-            });
-        }
-
-        return $cat;
-    });
-
-        $brands = Brand::isActive()->get();
-        return view('backend.pages.products.categories.edit', compact('category', 'categories', 'brands', 'lang_key'));
+        return redirect()->route('admin.categories.index');
     }
+
+    // Current category
+    $category = Category::findOrFail($id);
+
+    // Brands only
+    $brands = Brand::isActive()
+        ->select('id', 'name')
+        ->get();
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Current Parent Breadcrumb
+    |--------------------------------------------------------------------------
+    */
+
+    $selectedParent = null;
+
+    if (!empty($category->parent_id) && $category->parent_id != 0) {
+
+        $allCategories = Category::query()
+            ->select('id', 'name', 'parent_id')
+            ->get();
+
+        $categoriesById = [];
+
+        foreach ($allCategories as $item) {
+            $categoriesById[$item->id] = $item;
+        }
+
+        $current = $categoriesById[$category->parent_id] ?? null;
+
+        $breadcrumb = [];
+
+        $visited = [];
+
+        while ($current) {
+
+            if (isset($visited[$current->id])) {
+                break;
+            }
+
+            $visited[$current->id] = true;
+
+            $breadcrumb[] = $current->name;
+
+            if (
+                empty($current->parent_id) ||
+                $current->parent_id == 0
+            ) {
+                break;
+            }
+
+            $current =
+                $categoriesById[$current->parent_id] ?? null;
+        }
+
+        $selectedParent = [
+            'id' => $category->parent_id,
+
+            'text' => implode(
+                ' > ',
+                array_reverse($breadcrumb)
+            ),
+        ];
+    }
+
+
+    return view(
+        'backend.pages.products.categories.edit',
+        compact(
+            'category',
+            'brands',
+            'lang_key',
+            'selectedParent'
+        )
+    );
+}
 
     # update category
     public function update(Request $request)
     {
         $category = Category::findOrFail($request->id);
+        $parentId = $request->filled('parent_id') ? (int) $request->parent_id : 0;
+
         
         $exists = Category::whereRaw('LOWER(name) = ?', [strtolower(trim($request->name))])
         ->where('parent_id', $request->parent_id)
@@ -253,7 +389,7 @@ $category->description = $request->description;
             $category->meta_image = $request->meta_image;
 
             // Slug only update if manually changed
-$category->slug = $request->slug
+        $category->slug = $request->slug
     ? Str::slug($request->slug)
     : Str::slug($request->name);
             if ($request->sorting_order_level != null) {
@@ -333,6 +469,7 @@ $category->description = $request->description;
 
         $category->save();
         $categoryLocalization->save();
+        cache()->forget('admin_category_search_options');
         flash(localize('Category has been updated successfully'))->success();
         return back();
     }
@@ -373,6 +510,7 @@ $category->description = $request->description;
 
              $category->forceDelete();
         }
+        cache()->forget('admin_category_search_options');
         flash(localize('Category has been deleted successfully'))->success();
         return back();
     }
@@ -461,7 +599,7 @@ $category->description = $request->description;
     $category->is_active = $request->status;
 
     $category->save();
-
+    cache()->forget('admin_category_search_options');
     return response()->json(1);
 }
 }

@@ -68,6 +68,12 @@ use App\Http\Controllers\Backend\TsdController;
 use App\Http\Controllers\Backend\InstractionController;
 
 use Illuminate\Support\Facades\Http;
+Route::get(
+    '/admin/categories/search',
+    [CategoriesController::class, 'searchCategories']
+)->name('admin.categories.search');
+
+
 
 
 Route::get('/pincode/{pin}', function ($pin) {

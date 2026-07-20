@@ -31,45 +31,39 @@
                            placeholder="{{ localize('Type your category name') }}" name="name" required>
                      </div>
                     
-                     <div class="mb-4">
-                        <label for="parent_id" class="form-label">{{ localize('Base Category') }}</label>
-                       @php
-                                        function renderCategoryOptions($category, $prefix = '')
-                                        {
-                                            echo '<option value="' .
-                                                $category->id .
-                                                '">' .
-                                                $prefix .
-                                                $category->collectLocalization('name') .
-                                                '</option>';
+                    <div class="mb-4">
 
-                                            foreach ($category->childrenCategories as $child) {
-                                                renderCategoryOptions(
-                                                    $child,
-                                                    $prefix . $category->collectLocalization('name') . ' > ',
-                                                );
-                                            }
-                                        }
-                                    @endphp
+    <label for="parent_id" class="form-label">
+        {{ localize('Base Category') }}
+    </label>
 
-                                    <select class="form-control select2" name="parent_id">
+    <select
+        class="form-control"
+        name="parent_id"
+        id="parent_id"
+        style="width: 100%;"
+    >
 
-                                        <option value="0"> - </option>
+        <option value="0">
+            Root Category
+        </option>
 
-                                        @foreach ($categories as $category)
-                                            @php
-                                                renderCategoryOptions($category);
-                                            @endphp
-                                        @endforeach
+    </select>
 
-                                    </select>
-                        <!-- ✅ YAHAN DALNA HAI -->
-                        <div class="mt-2">
-                           <small class="text-muted" id="categoryBreadcrumb">
-                           No category selected
-                           </small>
-                        </div>
-                     </div>
+    <div class="mt-2">
+
+        <small
+            class="text-muted"
+            id="categoryBreadcrumb"
+        >
+            No category selected
+        </small>
+
+    </div>
+
+</div>
+                    
+                   
                      <div class="mb-4">
                         <label class="form-label">{{ localize('Brands') }}</label>
                         <select class="form-control select2" name="brand_ids[]" class="w-100"
@@ -432,6 +426,131 @@
       </div>
    </div>
 </section>
+
+@section('scripts')
+
+<script>
+
+"use strict";
+
+$(document).ready(function () {
+
+
+    // ==========================
+    // SUMMERNOTE
+    // ==========================
+
+    if ($('.summernote').length > 0) {
+
+        $('.summernote').summernote({
+
+            height: 250,
+
+            toolbar: [
+
+                ['style', ['style']],
+
+                ['font', [
+                    'bold',
+                    'italic',
+                    'underline',
+                    'clear'
+                ]],
+
+                ['fontname', ['fontname']],
+
+                ['para', [
+                    'ul',
+                    'ol',
+                    'paragraph'
+                ]],
+
+                ['insert', ['link']],
+
+                ['view', ['codeview']]
+
+            ]
+
+        });
+
+    }
+
+
+    // ==========================
+    // AJAX CATEGORY SELECT2
+    // ==========================
+
+    $('#parent_id').select2({
+
+        placeholder: 'Search Base Category',
+
+        allowClear: true,
+
+        minimumInputLength: 2,
+
+        ajax: {
+
+            url: "{{ route('admin.categories.search') }}",
+
+            dataType: 'json',
+
+            delay: 300,
+
+            data: function (params) {
+
+                return {
+                    q: params.term
+                };
+
+            },
+
+            processResults: function (data) {
+
+                return {
+                    results: data.results
+                };
+
+            },
+
+            cache: true
+
+        }
+
+    });
+
+
+    // ==========================
+    // BREADCRUMB
+    // ==========================
+
+    $('#parent_id').on(
+        'select2:select',
+        function (e) {
+
+            $('#categoryBreadcrumb')
+                .text(e.params.data.text);
+
+        }
+    );
+
+
+    $('#parent_id').on(
+        'select2:clear',
+        function () {
+
+            $('#categoryBreadcrumb')
+                .text('No category selected');
+
+        }
+    );
+
+
+});
+
+</script>
+
+@endsection
+
 @section('scripts')
 <script>
    "use strict";
@@ -454,27 +573,7 @@
    
    
    
-   const categories = @json($categories);
-   
-   function findCategoryPath(id, list, path = []) {
-       for (let cat of list) {
-   
-           // match id
-           if (cat.id == id) {
-               return [...path, cat.name];
-           }
-   
-           // 🔥 handle both cases
-           let children = cat.childrenCategories || cat.children_categories;
-   
-           if (children && children.length > 0) {
-               let result = findCategoryPath(id, children, [...path, cat.name]);
-               if (result) return result;
-           }
-       }
-       return null;
-   }
-   
+  
    $(document).ready(function () {
    
        function updateBreadcrumb() {

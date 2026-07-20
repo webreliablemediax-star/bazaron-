@@ -57,4 +57,9 @@ Pincode::class,
 'pincode_id'
 )->withTimestamps();
 }
+
+public function shippingSetting()
+{
+return $this->hasOne(VendorShippingSetting::class, 'user_id', 'user_id');
+}
 }
